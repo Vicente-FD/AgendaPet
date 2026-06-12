@@ -2,7 +2,7 @@
 
 Aplicación móvil híbrida **Android/iOS** para organizar recordatorios y el cuidado de mascotas.
 
-**Autor:** Vicente FD  
+**Autores:** Vicente FD, Mauro Castro Lazcano  
 **Repositorio:** [github.com/Vicente-FD/AgendaPet](https://github.com/Vicente-FD/AgendaPet)
 
 ---

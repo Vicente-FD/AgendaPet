@@ -1,5 +1,7 @@
 // Punto de entrada de Agenda Pet (Fase 1 — UI).
 //
+// Autores: Vicente FD, Mauro Castro Lazcano
+//
 // Commit inicial (`chore: init Flutter project - UI Phase`):
 // - Proyecto Flutter híbrido Android/iOS con org com.agendapet
 // - MaterialApp.router + go_router (sin pantalla home fija)
