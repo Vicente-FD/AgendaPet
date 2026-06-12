@@ -1,3 +1,15 @@
+// Configuración central de navegación con go_router.
+//
+// Definido en el commit inicial de Fase 1 UI. Las rutas se organizan por
+// pantalla/feature; la ruta raíz (/) redirige a /onboarding.
+//
+// Rutas activas:
+//   /onboarding         → Bienvenida
+//   /dashboard-active   → Home María (con recordatorios mock)
+//   /dashboard-empty    → Home Ernesto (sin mascotas)
+//   /pet-profile        → Ficha Carolina (push con slide)
+//
+// En debug, cada página envuelve DevRouteMenu para previsualizar rutas.
 import 'package:agenda_pet/features/dashboard_active/presentation/dashboard_active_screen.dart';
 import 'package:agenda_pet/features/dashboard_empty/presentation/dashboard_empty_screen.dart';
 import 'package:agenda_pet/features/onboarding/presentation/onboarding_screen.dart';

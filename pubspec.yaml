@@ -1,3 +1,5 @@
+# Agenda Pet — Fase 1 UI (autor: Vicente FD)
+# Commit inicial: proyecto Flutter + go_router + google_fonts + flutter_svg
 name: agenda_pet
 description: "Agenda Pet - Aplicación móvil híbrida Android/iOS para gestión de mascotas."
 # The following line prevents the package from being accidentally published to

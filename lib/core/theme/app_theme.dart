@@ -4,6 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 
 /// Tema global de la aplicación (Material 3).
 ///
+/// Configurado en el commit inicial de Fase 1 UI:
+/// - Tipografía Inter vía google_fonts
+/// - Botones principales con bordes redondeados (12px)
+/// - Cards con elevation 0 y fondo gris suave (AppColors.surfaceCard)
+///
 /// Impeller es el motor de renderizado por defecto en Android e iOS
 /// (Flutter 3.16+); no requiere configuración adicional en el tema.
 abstract final class AppTheme {

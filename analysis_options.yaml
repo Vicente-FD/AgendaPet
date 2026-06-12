@@ -1,3 +1,6 @@
+# Reglas de lint estrictas habilitadas en el commit inicial de Fase 1 UI:
+# prefer_const_constructors, require_trailing_commas, avoid_print
+#
 # This file configures the analyzer, which statically analyzes Dart code to
 # check for errors, warnings, and lints.
 #
