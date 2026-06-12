@@ -10,4 +10,12 @@ extension AppNavigation on BuildContext {
   void goDashboardEmpty() => go(AppRoutes.dashboardEmpty);
 
   void goPetProfile() => push(AppRoutes.petProfile);
+
+  void goAgenda() => push(AppRoutes.agenda);
+
+  void goVaccines() => push(AppRoutes.vaccines);
+
+  void goMedicines() => push(AppRoutes.medicines);
+
+  void goServices() => push(AppRoutes.services);
 }

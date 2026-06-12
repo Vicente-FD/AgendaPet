@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Paleta de colores institucional de Agenda Pet.
-///
-/// Definida en el commit inicial de Fase 1 UI. Centraliza los tokens de color
-/// para mantener consistencia entre Android e iOS sin duplicar valores hex
-/// en cada widget.
+/// Colores de la app. Todos los widgets usan estos valores.
 abstract final class AppColors {
   static const Color primary = Color(0xFF43A047);
   static const Color background = Color(0xFFFFFFFF);

@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-/// Menú flotante solo en modo debug para saltar entre pantallas durante el desarrollo UI.
+/// Botón de prueba. Solo aparece en modo debug para ir a cualquier pantalla.
 class DevRouteMenu extends StatelessWidget {
   const DevRouteMenu({super.key, required this.child});
 
@@ -15,6 +15,10 @@ class DevRouteMenu extends StatelessWidget {
     (label: 'Home (María)', path: AppRoutes.dashboardActive),
     (label: 'Home vacío (Ernesto)', path: AppRoutes.dashboardEmpty),
     (label: 'Perfil (Carolina)', path: AppRoutes.petProfile),
+    (label: 'Agenda', path: AppRoutes.agenda),
+    (label: 'Vacunas', path: AppRoutes.vaccines),
+    (label: 'Medicinas', path: AppRoutes.medicines),
+    (label: 'Servicios', path: AppRoutes.services),
   ];
 
   @override

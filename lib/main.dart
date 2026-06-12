@@ -1,13 +1,6 @@
-// Punto de entrada de Agenda Pet (Fase 1 — UI).
-//
+// Aquí arranca la app.
 // Autores: Vicente FD, Mauro Castro Lazcano
-//
-// Commit inicial (`chore: init Flutter project - UI Phase`):
-// - Proyecto Flutter híbrido Android/iOS con org com.agendapet
-// - MaterialApp.router + go_router (sin pantalla home fija)
-// - Tema global Material 3 definido en core/theme/
-//
-// En web se usa path URL strategy para rutas limpias (/onboarding, etc.).
+// En web las rutas se ven limpias, por ejemplo /onboarding.
 import 'package:agenda_pet/core/routing/app_router.dart';
 import 'package:agenda_pet/core/theme/app_theme.dart';
 import 'package:flutter/foundation.dart';

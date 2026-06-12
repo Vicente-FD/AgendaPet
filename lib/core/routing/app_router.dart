@@ -1,19 +1,12 @@
-// Configuración central de navegación con go_router.
-//
-// Definido en el commit inicial de Fase 1 UI. Las rutas se organizan por
-// pantalla/feature; la ruta raíz (/) redirige a /onboarding.
-//
-// Rutas activas:
-//   /onboarding         → Bienvenida
-//   /dashboard-active   → Home María (con recordatorios mock)
-//   /dashboard-empty    → Home Ernesto (sin mascotas)
-//   /pet-profile        → Ficha Carolina (push con slide)
-//
-// En debug, cada página envuelve DevRouteMenu para previsualizar rutas.
+// Rutas de la app. La raíz (/) manda a /onboarding.
+import 'package:agenda_pet/features/agenda/presentation/agenda_screen.dart';
 import 'package:agenda_pet/features/dashboard_active/presentation/dashboard_active_screen.dart';
 import 'package:agenda_pet/features/dashboard_empty/presentation/dashboard_empty_screen.dart';
+import 'package:agenda_pet/features/medicines/presentation/medicines_screen.dart';
 import 'package:agenda_pet/features/onboarding/presentation/onboarding_screen.dart';
 import 'package:agenda_pet/features/pet_profile/presentation/pet_profile_screen.dart';
+import 'package:agenda_pet/features/services/presentation/services_screen.dart';
+import 'package:agenda_pet/features/vaccines/presentation/vaccines_screen.dart';
 import 'package:agenda_pet/shared/widgets/dev_route_menu.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +17,10 @@ abstract final class AppRoutes {
   static const String dashboardEmpty = '/dashboard-empty';
   static const String dashboardActive = '/dashboard-active';
   static const String petProfile = '/pet-profile';
+  static const String agenda = '/agenda';
+  static const String vaccines = '/vacunas';
+  static const String medicines = '/medicinas';
+  static const String services = '/servicios';
 }
 
 final GoRouter appRouter = GoRouter(
@@ -70,6 +67,38 @@ final GoRouter appRouter = GoRouter(
       pageBuilder: (context, state) => _slidePage(
         state: state,
         child: const PetProfileScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.agenda,
+      name: 'agenda',
+      pageBuilder: (context, state) => _slidePage(
+        state: state,
+        child: const AgendaScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.vaccines,
+      name: 'vacunas',
+      pageBuilder: (context, state) => _slidePage(
+        state: state,
+        child: const VaccinesScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.medicines,
+      name: 'medicinas',
+      pageBuilder: (context, state) => _slidePage(
+        state: state,
+        child: const MedicinesScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.services,
+      name: 'servicios',
+      pageBuilder: (context, state) => _slidePage(
+        state: state,
+        child: const ServicesScreen(),
       ),
     ),
   ],

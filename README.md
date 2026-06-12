@@ -43,6 +43,21 @@ Pantallas y componentes de la Fase 1 UI:
 - **Routing** — `go_router` con rutas nombradas y menú dev para previsualizar pantallas en debug
 - **Mocks** — datos falsos de usuario, mascota y recordatorios en `lib/core/mocks/`
 
+### `feat: add care category screens, calendar and pet profile tabs`
+
+Nuevas pantallas de cuidado y mejoras al perfil:
+
+| Área | Qué se hizo |
+|------|-------------|
+| **Agenda** | Calendario mensual con eventos por color, leyenda y lista del día seleccionado |
+| **Vacunas** | Pantalla con listado mock de vacunas y desparasitación |
+| **Medicinas** | Pantalla con tratamientos y dosis mock |
+| **Servicios** | Pantalla con baños, peluquería y hospedaje mock |
+| **Perfil de mascota** | Pestañas Perfil, Agenda e Historial con datos de Carolina |
+| **Dashboard** | Acciones rápidas enlazadas a cada categoría |
+| **Widgets** | `CategoryScreenLayout`, `CareItemCard`, `SegmentedTabs`, calendario |
+| **Mocks** | `care_mock_data.dart` y `agenda_calendar_mock_data.dart` |
+
 ---
 
 ## Requisitos
@@ -78,6 +93,10 @@ Durante el desarrollo: **`r`** hot reload · **`R`** hot restart.
 | Home con mascotas | `/dashboard-active` | María |
 | Home sin mascotas | `/dashboard-empty` | Ernesto |
 | Perfil de mascota | `/pet-profile` | Carolina |
+| Agenda (calendario) | `/agenda` | Carolina |
+| Vacunas | `/vacunas` | Carolina |
+| Medicinas | `/medicinas` | Carolina |
+| Servicios | `/servicios` | Carolina |
 
 En modo **debug** aparece un botón flotante (icono de ruta) para saltar entre pantallas sin navegar el flujo completo.
 
@@ -87,17 +106,21 @@ En modo **debug** aparece un botón flotante (icono de ruta) para saltar entre p
 
 ```
 lib/
-├── main.dart                 # Punto de entrada; aplica tema y go_router
+├── main.dart                 # Arranque de la app
 ├── core/
-│   ├── theme/                # app_colors.dart, app_theme.dart (Material 3)
-│   ├── routing/              # app_router.dart, app_navigation.dart
-│   └── mocks/                # Datos simulados (mascotas, recordatorios)
-├── shared/widgets/           # Componentes UI reutilizables
+│   ├── theme/                # Colores y estilos globales
+│   ├── routing/              # Rutas y navegación
+│   └── mocks/                # Datos de prueba
+├── shared/widgets/           # Botones, tarjetas, pestañas, calendario
 └── features/
-    ├── onboarding/           # Pantalla de bienvenida
-    ├── dashboard_active/     # Home con recordatorios
+    ├── onboarding/           # Bienvenida
+    ├── dashboard_active/     # Home con mascotas
     ├── dashboard_empty/      # Home sin mascotas
-    └── pet_profile/          # Ficha de mascota
+    ├── pet_profile/          # Ficha con pestañas
+    ├── agenda/               # Calendario mensual
+    ├── vaccines/             # Vacunas
+    ├── medicines/            # Medicinas
+    └── services/             # Servicios
 ```
 
 ---

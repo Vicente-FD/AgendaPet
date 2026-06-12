@@ -1,7 +1,7 @@
 import 'package:agenda_pet/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
-/// Ilustración placeholder de mascotas para la pantalla de bienvenida.
+/// Dibujo simple de mascotas en la pantalla de bienvenida.
 class PetsIllustration extends StatelessWidget {
   const PetsIllustration({super.key});
 

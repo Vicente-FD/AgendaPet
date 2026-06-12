@@ -4,7 +4,7 @@ import 'package:agenda_pet/shared/widgets/app_logo.dart';
 import 'package:agenda_pet/shared/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 
-/// Vista de Ernesto — sin mascotas registradas (placeholder Fase 1).
+/// Home de Ernesto. Aún no tiene mascotas registradas.
 class DashboardEmptyScreen extends StatelessWidget {
   const DashboardEmptyScreen({super.key});
 

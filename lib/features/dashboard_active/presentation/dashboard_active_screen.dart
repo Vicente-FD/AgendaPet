@@ -56,26 +56,30 @@ class DashboardActiveScreen extends StatelessWidget {
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
             childAspectRatio: 1.4,
-            children: const [
+            children: [
               QuickActionTile(
                 label: 'Agenda',
                 icon: Icons.calendar_month_outlined,
                 color: AppColors.actionCalendar,
+                onTap: () => context.goAgenda(),
               ),
               QuickActionTile(
                 label: 'Vacunas',
                 icon: Icons.vaccines_outlined,
                 color: AppColors.actionVaccines,
+                onTap: () => context.goVaccines(),
               ),
               QuickActionTile(
                 label: 'Medicinas',
                 icon: Icons.medication_outlined,
                 color: AppColors.actionMedicines,
+                onTap: () => context.goMedicines(),
               ),
               QuickActionTile(
                 label: 'Servicios',
                 icon: Icons.home_repair_service_outlined,
                 color: AppColors.actionServices,
+                onTap: () => context.goServices(),
               ),
             ],
           ),
