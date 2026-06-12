@@ -1,0 +1,92 @@
+import 'package:agenda_pet/core/routing/app_router.dart';
+import 'package:agenda_pet/core/theme/app_colors.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+/// Menú flotante solo en modo debug para saltar entre pantallas durante el desarrollo UI.
+class DevRouteMenu extends StatelessWidget {
+  const DevRouteMenu({super.key, required this.child});
+
+  final Widget child;
+
+  static const List<({String label, String path})> _routes = [
+    (label: 'Bienvenida', path: AppRoutes.onboarding),
+    (label: 'Home (María)', path: AppRoutes.dashboardActive),
+    (label: 'Home vacío (Ernesto)', path: AppRoutes.dashboardEmpty),
+    (label: 'Perfil (Carolina)', path: AppRoutes.petProfile),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    if (!kDebugMode) return child;
+
+    return Stack(
+      children: [
+        child,
+        Positioned(
+          right: 16,
+          bottom: 88,
+          child: FloatingActionButton.small(
+            heroTag: 'dev-routes',
+            backgroundColor: AppColors.primary,
+            onPressed: () => _showRouteSheet(context),
+            child: const Icon(Icons.route, color: Colors.white),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showRouteSheet(BuildContext context) {
+  showModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    builder: (context) {
+      final current = GoRouterState.of(context).uri.path;
+
+      return SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Vista previa de rutas',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Ruta actual: $current',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+              ),
+              const SizedBox(height: 12),
+              ..._routes.map(
+                (route) => ListTile(
+                  leading: Icon(
+                    current == route.path
+                        ? Icons.radio_button_checked
+                        : Icons.radio_button_off,
+                    color: AppColors.primary,
+                  ),
+                  title: Text(route.label),
+                  subtitle: Text(route.path),
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.go(route.path);
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+  }
+}
