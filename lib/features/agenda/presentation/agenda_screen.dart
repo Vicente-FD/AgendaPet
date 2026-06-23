@@ -1,11 +1,11 @@
 import 'package:agenda_pet/core/mocks/agenda_calendar_mock_data.dart';
+import 'package:agenda_pet/core/routing/app_navigation.dart';
 import 'package:agenda_pet/core/theme/app_colors.dart';
 import 'package:agenda_pet/features/agenda/presentation/widgets/agenda_calendar.dart';
 import 'package:agenda_pet/features/agenda/presentation/widgets/calendar_event_tile.dart';
 import 'package:agenda_pet/features/agenda/presentation/widgets/calendar_legend.dart';
 import 'package:agenda_pet/shared/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class AgendaScreen extends StatefulWidget {
   const AgendaScreen({super.key});
@@ -32,10 +32,6 @@ class _AgendaScreenState extends State<AgendaScreen> {
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.pop(),
-        ),
         title: const Text('Agenda'),
       ),
       body: ListView(
@@ -98,7 +94,7 @@ class _AgendaScreenState extends State<AgendaScreen> {
           PrimaryButton(
             label: 'Agregar cita',
             icon: Icons.add,
-            onPressed: () {},
+            onPressed: () => context.goAddAppointment(),
           ),
         ],
       ),

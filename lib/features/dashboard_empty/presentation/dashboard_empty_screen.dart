@@ -1,3 +1,6 @@
+import 'package:agenda_pet/core/routing/app_navigation.dart';
+import 'package:agenda_pet/core/routing/app_router.dart';
+import 'package:agenda_pet/core/session/app_session.dart';
 import 'package:agenda_pet/core/theme/app_colors.dart';
 import 'package:agenda_pet/shared/widgets/app_bottom_nav.dart';
 import 'package:agenda_pet/shared/widgets/app_logo.dart';
@@ -5,8 +8,19 @@ import 'package:agenda_pet/shared/widgets/primary_button.dart';
 import 'package:flutter/material.dart';
 
 /// Home de Ernesto. Aún no tiene mascotas registradas.
-class DashboardEmptyScreen extends StatelessWidget {
+class DashboardEmptyScreen extends StatefulWidget {
   const DashboardEmptyScreen({super.key});
+
+  @override
+  State<DashboardEmptyScreen> createState() => _DashboardEmptyScreenState();
+}
+
+class _DashboardEmptyScreenState extends State<DashboardEmptyScreen> {
+  @override
+  void initState() {
+    super.initState();
+    AppSession.homeRoute = AppRoutes.dashboardEmpty;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,12 +59,15 @@ class DashboardEmptyScreen extends StatelessWidget {
             PrimaryButton(
               label: 'Agregar Mascota',
               icon: Icons.add,
-              onPressed: () {},
+              onPressed: () => context.goAddPet(),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: const AppBottomNav(),
+      bottomNavigationBar: const AppBottomNav(
+        currentIndex: 0,
+        homeRoute: AppRoutes.dashboardEmpty,
+      ),
     );
   }
 }

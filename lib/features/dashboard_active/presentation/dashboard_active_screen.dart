@@ -1,7 +1,6 @@
 import 'package:agenda_pet/core/mocks/home_mock_data.dart';
 import 'package:agenda_pet/core/routing/app_navigation.dart';
 import 'package:agenda_pet/core/theme/app_colors.dart';
-import 'package:agenda_pet/shared/widgets/app_bottom_nav.dart';
 import 'package:agenda_pet/shared/widgets/app_logo.dart';
 import 'package:agenda_pet/shared/widgets/pet_status_card.dart';
 import 'package:agenda_pet/shared/widgets/primary_button.dart';
@@ -101,11 +100,10 @@ class DashboardActiveScreen extends StatelessWidget {
           PrimaryButton(
             label: 'Agregar Mascota',
             icon: Icons.add,
-            onPressed: () {},
+            onPressed: () => context.goAddPet(),
           ),
         ],
       ),
-      bottomNavigationBar: const AppBottomNav(),
     );
   }
 }

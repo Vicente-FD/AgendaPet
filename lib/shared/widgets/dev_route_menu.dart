@@ -19,6 +19,12 @@ class DevRouteMenu extends StatelessWidget {
     (label: 'Vacunas', path: AppRoutes.vaccines),
     (label: 'Medicinas', path: AppRoutes.medicines),
     (label: 'Servicios', path: AppRoutes.services),
+    (label: 'Agregar cita', path: AppRoutes.addAppointment),
+    (label: 'Registrar vacuna', path: AppRoutes.addVaccine),
+    (label: 'Agregar medicina', path: AppRoutes.addMedicine),
+    (label: 'Agregar servicio', path: AppRoutes.addService),
+    (label: 'Agregar mascota', path: AppRoutes.addPet),
+    (label: 'Añadir recordatorio', path: AppRoutes.addReminder),
   ];
 
   @override

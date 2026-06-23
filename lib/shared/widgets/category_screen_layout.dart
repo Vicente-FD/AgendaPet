@@ -15,6 +15,7 @@ class CategoryScreenLayout extends StatelessWidget {
     required this.color,
     required this.items,
     this.addButtonLabel,
+    this.onAddPressed,
   });
 
   final String title;
@@ -23,6 +24,7 @@ class CategoryScreenLayout extends StatelessWidget {
   final Color color;
   final List<MockCareItem> items;
   final String? addButtonLabel;
+  final VoidCallback? onAddPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +65,7 @@ class CategoryScreenLayout extends StatelessWidget {
             PrimaryButton(
               label: addButtonLabel!,
               icon: Icons.add,
-              onPressed: () {},
+              onPressed: onAddPressed,
             ),
           ],
         ],

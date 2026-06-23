@@ -1,10 +1,10 @@
 import 'package:agenda_pet/core/mocks/care_mock_data.dart';
+import 'package:agenda_pet/core/routing/app_navigation.dart';
 import 'package:agenda_pet/core/theme/app_colors.dart';
 import 'package:agenda_pet/shared/widgets/care_item_card.dart';
 import 'package:agenda_pet/shared/widgets/primary_button.dart';
 import 'package:agenda_pet/shared/widgets/segmented_tabs.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class PetProfileScreen extends StatefulWidget {
   const PetProfileScreen({super.key});
@@ -23,10 +23,6 @@ class _PetProfileScreenState extends State<PetProfileScreen> {
     return Scaffold(
       backgroundColor: AppColors.scaffoldBackground,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.pop(),
-        ),
         title: const Text('Perfil'),
       ),
       body: ListView(
@@ -100,7 +96,7 @@ class _ProfileTab extends StatelessWidget {
         PrimaryButton(
           label: 'Añadir Recordatorio',
           icon: Icons.add,
-          onPressed: () {},
+          onPressed: () => context.goAddReminder(),
         ),
       ],
     );
@@ -118,7 +114,7 @@ class _AgendaTab extends StatelessWidget {
         PrimaryButton(
           label: 'Añadir Recordatorio',
           icon: Icons.add,
-          onPressed: () {},
+          onPressed: () => context.goAddReminder(),
         ),
         const SizedBox(height: 20),
         Text(
