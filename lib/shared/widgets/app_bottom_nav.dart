@@ -1,21 +1,50 @@
+import 'package:agenda_pet/core/routing/app_router.dart';
+import 'package:agenda_pet/core/session/app_session.dart';
 import 'package:agenda_pet/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class AppBottomNav extends StatelessWidget {
   const AppBottomNav({
     super.key,
-    this.currentIndex = 0,
-    this.onTap,
+    required this.currentIndex,
+    this.homeRoute = AppRoutes.dashboardActive,
+    this.navigationShell,
   });
 
   final int currentIndex;
-  final ValueChanged<int>? onTap;
+  final String homeRoute;
+  final StatefulNavigationShell? navigationShell;
+
+  void _onTap(BuildContext context, int index) {
+    if (index == currentIndex) return;
+
+    if (navigationShell != null) {
+      if (index == 0 && homeRoute == AppRoutes.dashboardEmpty) {
+        context.go(AppRoutes.dashboardEmpty);
+        return;
+      }
+      navigationShell!.goBranch(index);
+      return;
+    }
+
+    AppSession.homeRoute = homeRoute;
+
+    switch (index) {
+      case 0:
+        context.go(homeRoute);
+      case 1:
+        context.go(AppRoutes.agenda);
+      case 2:
+        context.go(AppRoutes.petProfile);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return NavigationBar(
       selectedIndex: currentIndex,
-      onDestinationSelected: onTap,
+      onDestinationSelected: (index) => _onTap(context, index),
       backgroundColor: AppColors.background,
       indicatorColor: AppColors.primary.withValues(alpha: 0.12),
       destinations: const [

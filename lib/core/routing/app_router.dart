@@ -2,11 +2,18 @@
 import 'package:agenda_pet/features/agenda/presentation/agenda_screen.dart';
 import 'package:agenda_pet/features/dashboard_active/presentation/dashboard_active_screen.dart';
 import 'package:agenda_pet/features/dashboard_empty/presentation/dashboard_empty_screen.dart';
+import 'package:agenda_pet/features/forms/presentation/add_appointment_screen.dart';
+import 'package:agenda_pet/features/forms/presentation/add_medicine_screen.dart';
+import 'package:agenda_pet/features/forms/presentation/add_pet_screen.dart';
+import 'package:agenda_pet/features/forms/presentation/add_reminder_screen.dart';
+import 'package:agenda_pet/features/forms/presentation/add_service_screen.dart';
+import 'package:agenda_pet/features/forms/presentation/add_vaccine_screen.dart';
 import 'package:agenda_pet/features/medicines/presentation/medicines_screen.dart';
 import 'package:agenda_pet/features/onboarding/presentation/onboarding_screen.dart';
 import 'package:agenda_pet/features/pet_profile/presentation/pet_profile_screen.dart';
 import 'package:agenda_pet/features/services/presentation/services_screen.dart';
 import 'package:agenda_pet/features/vaccines/presentation/vaccines_screen.dart';
+import 'package:agenda_pet/shared/widgets/app_shell.dart';
 import 'package:agenda_pet/shared/widgets/dev_route_menu.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +28,12 @@ abstract final class AppRoutes {
   static const String vaccines = '/vacunas';
   static const String medicines = '/medicinas';
   static const String services = '/servicios';
+  static const String addAppointment = '/agregar-cita';
+  static const String addVaccine = '/agregar-vacuna';
+  static const String addMedicine = '/agregar-medicina';
+  static const String addService = '/agregar-servicio';
+  static const String addPet = '/agregar-mascota';
+  static const String addReminder = '/agregar-recordatorio';
 }
 
 final GoRouter appRouter = GoRouter(
@@ -45,13 +58,48 @@ final GoRouter appRouter = GoRouter(
         child: const OnboardingScreen(),
       ),
     ),
-    GoRoute(
-      path: AppRoutes.dashboardActive,
-      name: 'dashboard-active',
-      pageBuilder: (context, state) => _fadePage(
-        state: state,
-        child: const DashboardActiveScreen(),
-      ),
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) {
+        return AppShell(navigationShell: navigationShell);
+      },
+      branches: [
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: AppRoutes.dashboardActive,
+              name: 'dashboard-active',
+              pageBuilder: (context, state) => _noTransitionPage(
+                state: state,
+                child: const DashboardActiveScreen(),
+              ),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: AppRoutes.agenda,
+              name: 'agenda',
+              pageBuilder: (context, state) => _noTransitionPage(
+                state: state,
+                child: const AgendaScreen(),
+              ),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: AppRoutes.petProfile,
+              name: 'pet-profile',
+              pageBuilder: (context, state) => _noTransitionPage(
+                state: state,
+                child: const PetProfileScreen(),
+              ),
+            ),
+          ],
+        ),
+      ],
     ),
     GoRoute(
       path: AppRoutes.dashboardEmpty,
@@ -59,22 +107,6 @@ final GoRouter appRouter = GoRouter(
       pageBuilder: (context, state) => _fadePage(
         state: state,
         child: const DashboardEmptyScreen(),
-      ),
-    ),
-    GoRoute(
-      path: AppRoutes.petProfile,
-      name: 'pet-profile',
-      pageBuilder: (context, state) => _slidePage(
-        state: state,
-        child: const PetProfileScreen(),
-      ),
-    ),
-    GoRoute(
-      path: AppRoutes.agenda,
-      name: 'agenda',
-      pageBuilder: (context, state) => _slidePage(
-        state: state,
-        child: const AgendaScreen(),
       ),
     ),
     GoRoute(
@@ -99,6 +131,54 @@ final GoRouter appRouter = GoRouter(
       pageBuilder: (context, state) => _slidePage(
         state: state,
         child: const ServicesScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.addAppointment,
+      name: 'agregar-cita',
+      pageBuilder: (context, state) => _slidePage(
+        state: state,
+        child: const AddAppointmentScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.addVaccine,
+      name: 'agregar-vacuna',
+      pageBuilder: (context, state) => _slidePage(
+        state: state,
+        child: const AddVaccineScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.addMedicine,
+      name: 'agregar-medicina',
+      pageBuilder: (context, state) => _slidePage(
+        state: state,
+        child: const AddMedicineScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.addService,
+      name: 'agregar-servicio',
+      pageBuilder: (context, state) => _slidePage(
+        state: state,
+        child: const AddServiceScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.addPet,
+      name: 'agregar-mascota',
+      pageBuilder: (context, state) => _slidePage(
+        state: state,
+        child: const AddPetScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.addReminder,
+      name: 'agregar-recordatorio',
+      pageBuilder: (context, state) => _slidePage(
+        state: state,
+        child: const AddReminderScreen(),
       ),
     ),
   ],
@@ -151,5 +231,18 @@ CustomTransitionPage<void> _slidePage({
         child: child,
       );
     },
+  );
+}
+
+CustomTransitionPage<void> _noTransitionPage({
+  required GoRouterState state,
+  required Widget child,
+}) {
+  return CustomTransitionPage<void>(
+    key: state.pageKey,
+    child: child,
+    transitionDuration: Duration.zero,
+    reverseTransitionDuration: Duration.zero,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) => child,
   );
 }
