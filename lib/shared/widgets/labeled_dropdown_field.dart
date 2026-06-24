@@ -1,4 +1,4 @@
-import 'package:agenda_pet/core/theme/app_colors.dart';
+import 'package:agenda_pet/core/theme/app_surfaces.dart';
 import 'package:flutter/material.dart';
 
 class LabeledDropdownField<T> extends StatelessWidget {
@@ -36,7 +36,7 @@ class LabeledDropdownField<T> extends StatelessWidget {
           validator: validator,
           decoration: InputDecoration(
             filled: true,
-            fillColor: AppColors.surfaceCard,
+            fillColor: context.surfaceMuted,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,

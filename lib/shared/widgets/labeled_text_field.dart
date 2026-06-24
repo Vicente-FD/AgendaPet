@@ -1,4 +1,5 @@
 import 'package:agenda_pet/core/theme/app_colors.dart';
+import 'package:agenda_pet/core/theme/app_surfaces.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -16,6 +17,7 @@ class LabeledTextField extends StatelessWidget {
     this.readOnly = false,
     this.onTap,
     this.suffixIcon,
+    this.obscureText = false,
   });
 
   final String label;
@@ -29,6 +31,7 @@ class LabeledTextField extends StatelessWidget {
   final bool readOnly;
   final VoidCallback? onTap;
   final Widget? suffixIcon;
+  final bool obscureText;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +51,7 @@ class LabeledTextField extends StatelessWidget {
           keyboardType: keyboardType,
           textInputAction: textInputAction,
           maxLines: maxLines,
+          obscureText: obscureText,
           inputFormatters: inputFormatters,
           readOnly: readOnly,
           onTap: onTap,
@@ -55,7 +59,7 @@ class LabeledTextField extends StatelessWidget {
             hintText: hint,
             hintStyle: TextStyle(color: AppColors.textSecondary.withValues(alpha: 0.7)),
             filled: true,
-            fillColor: AppColors.surfaceCard,
+            fillColor: context.surfaceMuted,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,

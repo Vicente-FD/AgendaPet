@@ -1,4 +1,5 @@
 import 'package:agenda_pet/core/theme/app_colors.dart';
+import 'package:agenda_pet/core/theme/app_surfaces.dart';
 import 'package:flutter/material.dart';
 
 class SegmentedTabs extends StatelessWidget {
@@ -18,7 +19,7 @@ class SegmentedTabs extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppColors.surfaceCard,
+        color: context.surfaceMuted,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(

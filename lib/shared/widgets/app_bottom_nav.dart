@@ -1,6 +1,7 @@
 import 'package:agenda_pet/core/routing/app_router.dart';
 import 'package:agenda_pet/core/session/app_session.dart';
 import 'package:agenda_pet/core/theme/app_colors.dart';
+import 'package:agenda_pet/core/theme/app_surfaces.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -45,7 +46,7 @@ class AppBottomNav extends StatelessWidget {
     return NavigationBar(
       selectedIndex: currentIndex,
       onDestinationSelected: (index) => _onTap(context, index),
-      backgroundColor: AppColors.background,
+      backgroundColor: context.surface,
       indicatorColor: AppColors.primary.withValues(alpha: 0.12),
       destinations: const [
         NavigationDestination(

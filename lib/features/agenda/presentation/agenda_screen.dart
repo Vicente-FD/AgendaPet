@@ -30,7 +30,6 @@ class _AgendaScreenState extends State<AgendaScreen> {
     final dayEvents = AgendaCalendarMockData.eventsForDay(_selectedDay);
 
     return Scaffold(
-      backgroundColor: AppColors.scaffoldBackground,
       appBar: AppBar(
         title: const Text('Agenda'),
       ),

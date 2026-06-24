@@ -1,6 +1,7 @@
 // Calendario mensual con puntos de color por tipo de evento.
 import 'package:agenda_pet/core/mocks/agenda_calendar_mock_data.dart';
 import 'package:agenda_pet/core/theme/app_colors.dart';
+import 'package:agenda_pet/core/theme/app_surfaces.dart';
 import 'package:flutter/material.dart';
 
 class AgendaCalendar extends StatelessWidget {
@@ -175,7 +176,7 @@ class _DayCell extends StatelessWidget {
     final backgroundColor = isSelected
         ? AppColors.primary.withValues(alpha: 0.15)
         : hasEvents
-            ? AppColors.surfaceCard
+            ? context.surfaceMuted
             : Colors.transparent;
 
     return Material(
