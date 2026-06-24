@@ -1,8 +1,13 @@
+import 'dart:typed_data';
+
 import 'package:agenda_pet/core/mocks/care_mock_data.dart';
 import 'package:agenda_pet/core/routing/app_navigation.dart';
 import 'package:agenda_pet/core/theme/app_colors.dart';
 import 'package:agenda_pet/shared/widgets/care_item_card.dart';
+import 'package:agenda_pet/shared/widgets/pet_avatar.dart';
+import 'package:agenda_pet/shared/widgets/photo_picker_field.dart';
 import 'package:agenda_pet/shared/widgets/primary_button.dart';
+import 'package:agenda_pet/shared/widgets/section_header.dart';
 import 'package:agenda_pet/shared/widgets/segmented_tabs.dart';
 import 'package:flutter/material.dart';
 
@@ -15,13 +20,18 @@ class PetProfileScreen extends StatefulWidget {
 
 class _PetProfileScreenState extends State<PetProfileScreen> {
   int _tabIndex = 0;
+  Uint8List? _photo;
+
+  Future<void> _changePhoto() async {
+    final bytes = await showPhotoSourceSheet(context);
+    if (bytes != null) setState(() => _photo = bytes);
+  }
 
   @override
   Widget build(BuildContext context) {
     final pet = CareMockData.petDetail;
 
     return Scaffold(
-      backgroundColor: AppColors.scaffoldBackground,
       appBar: AppBar(
         title: const Text('Perfil'),
       ),
@@ -29,10 +39,10 @@ class _PetProfileScreenState extends State<PetProfileScreen> {
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
         children: [
           Center(
-            child: CircleAvatar(
+            child: PetAvatar(
+              imageBytes: _photo,
               radius: 48,
-              backgroundColor: AppColors.primary.withValues(alpha: 0.15),
-              child: const Icon(Icons.pets, size: 48, color: AppColors.primary),
+              onAddPhoto: _changePhoto,
             ),
           ),
           const SizedBox(height: 12),
@@ -98,7 +108,98 @@ class _ProfileTab extends StatelessWidget {
           icon: Icons.add,
           onPressed: () => context.goAddReminder(),
         ),
+        const SizedBox(height: 24),
+        SectionHeader(title: 'Más sobre ${pet.name}'),
+        const SizedBox(height: 12),
+        _LinkTile(
+          icon: Icons.timeline_outlined,
+          color: AppColors.growth,
+          title: 'Historial de crecimiento',
+          subtitle: 'Fotos, peso y etapas',
+          onTap: () => context.goGrowth(),
+        ),
+        const SizedBox(height: 10),
+        _LinkTile(
+          icon: Icons.celebration_outlined,
+          color: AppColors.memories,
+          title: 'Eventos significativos',
+          subtitle: 'Cumpleaños y recuerdos',
+          onTap: () => context.goEvents(),
+        ),
+        const SizedBox(height: 10),
+        _LinkTile(
+          icon: Icons.diversity_3_outlined,
+          color: AppColors.family,
+          title: 'Familia compartida',
+          subtitle: 'Quién administra a la mascota',
+          onTap: () => context.goFamily(),
+        ),
       ],
+    );
+  }
+}
+
+class _LinkTile extends StatelessWidget {
+  const _LinkTile({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final Color color;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: color, size: 22),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded,
+                  color: AppColors.textSecondary.withValues(alpha: 0.6)),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

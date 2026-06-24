@@ -25,6 +25,21 @@ class DevRouteMenu extends StatelessWidget {
     (label: 'Agregar servicio', path: AppRoutes.addService),
     (label: 'Agregar mascota', path: AppRoutes.addPet),
     (label: 'Añadir recordatorio', path: AppRoutes.addReminder),
+    (label: 'Historial crecimiento', path: AppRoutes.growth),
+    (label: 'Eventos significativos', path: AppRoutes.events),
+    (label: 'Tips', path: AppRoutes.tips),
+    (label: 'Familia compartida', path: AppRoutes.family),
+    (label: 'Notificaciones', path: AppRoutes.notifications),
+    (label: 'Agregar foto crecimiento', path: AppRoutes.addGrowth),
+    (label: 'Agregar evento', path: AppRoutes.addEvent),
+    (label: 'Login', path: AppRoutes.login),
+    (label: 'Registro', path: AppRoutes.register),
+    (label: 'Ajustes', path: AppRoutes.settings),
+    (label: 'Mi cuenta', path: AppRoutes.userProfile),
+    (label: 'Suscripción (PRO)', path: AppRoutes.subscription),
+    (label: 'Pago / checkout', path: AppRoutes.checkout),
+    (label: 'Suscripción éxito', path: AppRoutes.subscriptionSuccess),
+    (label: 'Mis mascotas', path: AppRoutes.pets),
   ];
 
   @override

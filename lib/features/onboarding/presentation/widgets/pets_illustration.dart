@@ -1,41 +1,66 @@
 import 'package:agenda_pet/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
-/// Dibujo simple de mascotas en la pantalla de bienvenida.
+/// Ilustración amigable de la pantalla de bienvenida: un perro y un gato
+/// sobre un pequeño prado verde.
 class PetsIllustration extends StatelessWidget {
   const PetsIllustration({super.key});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 200,
+      height: 220,
       child: Stack(
-        alignment: Alignment.center,
+        alignment: Alignment.bottomCenter,
         children: [
+          // Prado / sombra suave.
           Container(
-            width: 220,
-            height: 80,
+            width: 260,
+            height: 70,
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.15),
+              color: AppColors.primary.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(40),
             ),
           ),
-          const Positioned(
-            left: 60,
-            bottom: 30,
-            child: _PetAvatar(
-              icon: Icons.pets,
-              color: Color(0xFF8D6E63),
-              size: 90,
+          // Acento de huella detrás.
+          Positioned(
+            top: 6,
+            right: 36,
+            child: Icon(
+              Icons.pets,
+              size: 26,
+              color: AppColors.primary.withValues(alpha: 0.25),
             ),
           ),
+          Positioned(
+            top: 30,
+            left: 28,
+            child: Icon(
+              Icons.favorite,
+              size: 18,
+              color: AppColors.memories.withValues(alpha: 0.3),
+            ),
+          ),
+          // Perro (más grande) y gato (más pequeño).
           const Positioned(
-            right: 60,
-            bottom: 40,
-            child: _PetAvatar(
-              icon: Icons.pets,
-              color: Color(0xFFFF8F00),
-              size: 70,
+            bottom: 24,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                _PetBubble(
+                  emoji: '🐶',
+                  size: 132,
+                  background: Color(0xFFE8F5E9),
+                  border: AppColors.primary,
+                ),
+                SizedBox(width: 12),
+                _PetBubble(
+                  emoji: '🐱',
+                  size: 104,
+                  background: Color(0xFFFFF3E0),
+                  border: Color(0xFFFF8F00),
+                ),
+              ],
             ),
           ),
         ],
@@ -44,16 +69,18 @@ class PetsIllustration extends StatelessWidget {
   }
 }
 
-class _PetAvatar extends StatelessWidget {
-  const _PetAvatar({
-    required this.icon,
-    required this.color,
+class _PetBubble extends StatelessWidget {
+  const _PetBubble({
+    required this.emoji,
     required this.size,
+    required this.background,
+    required this.border,
   });
 
-  final IconData icon;
-  final Color color;
+  final String emoji;
   final double size;
+  final Color background;
+  final Color border;
 
   @override
   Widget build(BuildContext context) {
@@ -61,11 +88,19 @@ class _PetAvatar extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.2),
+        color: background,
         shape: BoxShape.circle,
-        border: Border.all(color: color.withValues(alpha: 0.4), width: 2),
+        border: Border.all(color: border.withValues(alpha: 0.35), width: 3),
+        boxShadow: [
+          BoxShadow(
+            color: border.withValues(alpha: 0.15),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
-      child: Icon(icon, color: color, size: size * 0.45),
+      alignment: Alignment.center,
+      child: Text(emoji, style: TextStyle(fontSize: size * 0.5)),
     );
   }
 }
