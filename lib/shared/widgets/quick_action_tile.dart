@@ -1,4 +1,5 @@
-import 'package:agenda_pet/core/theme/app_colors.dart';
+import 'package:agenda_pet/core/theme/app_surfaces.dart';
+import 'package:agenda_pet/shared/widgets/pressable.dart';
 import 'package:flutter/material.dart';
 
 class QuickActionTile extends StatelessWidget {
@@ -17,17 +18,18 @@ class QuickActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.background,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
+    return Pressable(
+      child: Material(
+        color: context.surface,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.surfaceCard),
+            border: Border.all(color: context.surfaceMuted),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -43,6 +45,7 @@ class QuickActionTile extends StatelessWidget {
               ),
             ],
           ),
+        ),
         ),
       ),
     );
