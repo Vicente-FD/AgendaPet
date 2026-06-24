@@ -1,0 +1,23 @@
+# Normaliza los finales de línea a LF en el repositorio y en el working tree.
+# Evita los avisos "LF will be replaced by CRLF" en Windows y mantiene
+# consistencia entre macOS/Linux/Windows.
+* text=auto eol=lf
+
+# Archivos binarios: Git no debe modificarlos nunca.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+*.ico   binary
+*.ttf   binary
+*.otf   binary
+*.woff  binary
+*.woff2 binary
+*.jar   binary
+*.keystore binary
+*.so    binary
+*.a     binary
+*.dylib binary
+*.dll   binary
+*.exe   binary
