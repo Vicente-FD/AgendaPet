@@ -67,12 +67,12 @@ class _DashboardEmptyScreenState extends State<DashboardEmptyScreen> {
             physics: const NeverScrollableScrollPhysics(),
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
-            childAspectRatio: 1.4,
+            childAspectRatio: 1.3,
             children: [
               QuickActionTile(
-                label: 'Agenda',
-                icon: Icons.calendar_month_outlined,
-                color: AppColors.actionCalendar,
+                label: 'Alimentación',
+                icon: Icons.restaurant_outlined,
+                color: AppColors.feeding,
                 onTap: () => context.goAddPet(),
               ),
               QuickActionTile(

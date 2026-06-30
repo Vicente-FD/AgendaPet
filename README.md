@@ -32,13 +32,20 @@ Stack principal: **Flutter** + **Dart**, un solo código para Android, iOS y web
 **Cuidado**
 - Agenda con calendario mensual, eventos por color y leyenda
 - Pantallas de **Vacunas, Medicinas y Servicios**
-- Formularios de alta (mascota, cita, recordatorio, vacuna, medicina, servicio)
+- **Alimentación**: alimento registrado, periodo de compra (saco restante + próxima compra) y **calculadora de ración** según peso y nivel de actividad, con tabla de referencia
+- Formularios de alta (mascota, cita, recordatorio, vacuna, medicina, servicio, alimento)
+
+**Paseos (estilo Strava)**
+- **Feed de paseos** con resumen semanal (distancia, paseos, tiempo) y actividad reciente
+- **Paseo en vivo**: mapa estilizado con el recorrido avanzando, **ubicación compartida en tiempo real**, métricas (distancia, tiempo, ritmo) y pausar/finalizar
+- **Detalle del recorrido** con mapa, métricas y parciales por km
+- **Rol Paseador**: un paseador profesional se añade a la familia y puede iniciar paseos; también pueden hacerlo los miembros de la familia
 
 **Crecimiento y recuerdos**
 - **Historial de Crecimiento**: línea de tiempo con fotos, peso y notas, **gráfico de peso**, comparador **Antes/Ahora** y **video resumen** ("Mi mascota a través del tiempo")
 - **Eventos significativos** (cumpleaños, primeras veces…)
 - **Tips** de cuidado curados (p. ej. cuándo esterilizar)
-- **Familia compartida**: varios miembros administran la misma mascota
+- **Familia compartida**: varios miembros (y el paseador) administran la misma mascota
 - **Centro de notificaciones** agrupado (crecimiento, recuerdos, salud, día a día)
 
 **Monetización (simulada)**
@@ -110,12 +117,16 @@ Los smoke tests renderizan cada pantalla a ancho de móvil (390×844), en claro 
 |----------|------|
 | Agenda (calendario) | `/agenda` |
 | Vacunas / Medicinas / Servicios | `/vacunas` · `/medicinas` · `/servicios` |
+| Alimentación | `/alimentacion` (+ `/agregar-alimento`) |
 | Formularios de alta | `/agregar-cita` · `/agregar-vacuna` · `/agregar-medicina` · `/agregar-servicio` · `/agregar-mascota` · `/agregar-recordatorio` |
 
 **Crecimiento, recuerdos y más**
 
 | Pantalla | Ruta |
 |----------|------|
+| Paseos (feed) | `/paseos` |
+| Paseo en vivo | `/paseo-activo` |
+| Detalle de paseo | `/paseo-detalle` |
 | Historial de crecimiento | `/crecimiento` (+ `/agregar-crecimiento`) |
 | Eventos significativos | `/eventos` (+ `/agregar-evento`) |
 | Tips | `/tips` |
@@ -159,6 +170,8 @@ lib/
     ├── pet_profile/          # Ficha con pestañas
     ├── agenda/               # Calendario mensual
     ├── vaccines/ medicines/ services/
+    ├── feeding/              # Alimentación y calculadora de ración
+    ├── walks/                # Paseos (feed, paseo en vivo, detalle)
     ├── growth/               # Historial de crecimiento
     ├── events/               # Eventos significativos
     ├── tips/                 # Tips de cuidado
@@ -180,6 +193,8 @@ lib/
 | Vacunas | `#43A047` | Acción Vacunas |
 | Medicinas | `#8E24AA` | Acción Medicinas |
 | Servicios | `#F4511E` | Acción Servicios |
+| Alimentación | `#FB8C00` | Acción Alimentación |
+| Paseos | `#3D5AFE` · `#00B0FF` | Paseos / GPS (índigo + acento) |
 | Crecimiento | `#00897B` | Historial de crecimiento |
 | Recuerdos | `#EC407A` | Eventos significativos |
 | Familia | `#5E35B1` | Familia compartida |

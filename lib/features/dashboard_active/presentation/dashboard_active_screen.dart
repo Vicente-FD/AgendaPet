@@ -63,20 +63,8 @@ class _DashboardActiveScreenState extends State<DashboardActiveScreen> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
         children: [
-          Text(
-            'Hola, ${HomeMockData.userName}',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            '¿Qué necesitas hoy?',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-          ),
-          const SizedBox(height: 16),
+          const _GreetingHeader(name: HomeMockData.userName),
+          const SizedBox(height: 20),
           SectionHeader(
             title: 'Tus mascotas',
             actionLabel: 'Ver todas',
@@ -105,13 +93,13 @@ class _DashboardActiveScreenState extends State<DashboardActiveScreen> {
             physics: const NeverScrollableScrollPhysics(),
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
-            childAspectRatio: 1.4,
+            childAspectRatio: 1.3,
             children: [
               QuickActionTile(
-                label: 'Agenda',
-                icon: Icons.calendar_month_outlined,
-                color: AppColors.actionCalendar,
-                onTap: () => context.goAgenda(),
+                label: 'Alimentación',
+                icon: Icons.restaurant_outlined,
+                color: AppColors.feeding,
+                onTap: () => context.goFeeding(),
               ),
               QuickActionTile(
                 label: 'Vacunas',
@@ -156,6 +144,17 @@ class _DashboardActiveScreenState extends State<DashboardActiveScreen> {
                 child: ReminderCard(reminder: entry.$2),
               ),
             ),
+          ),
+          const SizedBox(height: 24),
+          SectionHeader(
+            title: 'Paseos',
+            actionLabel: 'Ver todos',
+            onAction: () => context.goWalks(),
+          ),
+          const SizedBox(height: 12),
+          _WalkTeaserCard(
+            onTap: () => context.goWalks(),
+            onStart: () => context.goLiveWalk(),
           ),
           const SizedBox(height: 24),
           SectionHeader(
@@ -242,6 +241,197 @@ class _NotificationBell extends StatelessWidget {
             ),
           ),
       ],
+    );
+  }
+}
+
+/// Encabezado con degradado: saludo personalizado sobre fondo de huellas.
+class _GreetingHeader extends StatelessWidget {
+  const _GreetingHeader({required this.name});
+
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    final initial =
+        name.isNotEmpty ? name.characters.first.toUpperCase() : '?';
+
+    return Material(
+      borderRadius: BorderRadius.circular(20),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        // Toda la tarjeta de saludo abre el perfil del dueño (acceso directo).
+        onTap: () => context.goUserProfile(),
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            gradient: const LinearGradient(
+              colors: [AppColors.primary, AppColors.primaryDark],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: PawPrintBackground(
+            opacity: 0.1,
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Hola, $name 👋',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800,
+                              ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '¿Qué necesitas hoy?',
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                color: Colors.white.withValues(alpha: 0.9),
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircleAvatar(
+                        radius: 26,
+                        backgroundColor: Colors.white,
+                        child: Text(
+                          initial,
+                          style: const TextStyle(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 22,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Mi cuenta',
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                          ),
+                          const Icon(Icons.chevron_right_rounded,
+                              color: Colors.white, size: 16),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Tarjeta destacada para iniciar/ver paseos (estilo Strava).
+class _WalkTeaserCard extends StatelessWidget {
+  const _WalkTeaserCard({required this.onTap, required this.onStart});
+
+  final VoidCallback onTap;
+  final VoidCallback onStart;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      borderRadius: BorderRadius.circular(16),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: const LinearGradient(
+              colors: [AppColors.walk, AppColors.walkAccent],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: PawPrintBackground(
+            opacity: 0.1,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(Icons.directions_walk_rounded,
+                        color: Colors.white, size: 26),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Registra un paseo',
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleSmall
+                              ?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                              ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Guarda el recorrido y la ubicación en vivo',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(
+                                color: Colors.white.withValues(alpha: 0.9),
+                              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  FilledButton(
+                    onPressed: onStart,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: AppColors.walk,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
+                      minimumSize: Size.zero,
+                    ),
+                    child: const Text('Iniciar'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

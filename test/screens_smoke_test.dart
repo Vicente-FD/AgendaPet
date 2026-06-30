@@ -10,6 +10,7 @@ import 'package:agenda_pet/features/dashboard_active/presentation/dashboard_acti
 import 'package:agenda_pet/features/dashboard_empty/presentation/dashboard_empty_screen.dart';
 import 'package:agenda_pet/features/events/presentation/events_screen.dart';
 import 'package:agenda_pet/features/family/presentation/family_screen.dart';
+import 'package:agenda_pet/features/feeding/presentation/feeding_screen.dart';
 import 'package:agenda_pet/features/growth/presentation/growth_history_screen.dart';
 import 'package:agenda_pet/features/notifications/presentation/notifications_screen.dart';
 import 'package:agenda_pet/features/onboarding/presentation/onboarding_screen.dart';
@@ -20,6 +21,9 @@ import 'package:agenda_pet/features/subscription/presentation/checkout_screen.da
 import 'package:agenda_pet/features/subscription/presentation/subscription_screen.dart';
 import 'package:agenda_pet/features/subscription/presentation/subscription_success_screen.dart';
 import 'package:agenda_pet/features/tips/presentation/tips_screen.dart';
+import 'package:agenda_pet/features/walks/presentation/live_walk_screen.dart';
+import 'package:agenda_pet/features/walks/presentation/walk_detail_screen.dart';
+import 'package:agenda_pet/features/walks/presentation/walks_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -28,6 +32,9 @@ final Map<String, Widget Function()> _screens = {
   'Dashboard activo': () => const DashboardActiveScreen(),
   'Dashboard vacío': () => const DashboardEmptyScreen(),
   'Pet profile': () => const PetProfileScreen(),
+  'Feeding': () => const FeedingScreen(),
+  'Walks': () => const WalksScreen(),
+  'Walk detail': () => const WalkDetailScreen(),
   'Growth history': () => const GrowthHistoryScreen(),
   'Events': () => const EventsScreen(),
   'Tips': () => const TipsScreen(),
@@ -67,7 +74,7 @@ void main() {
   }
 
   // Pantallas densas en modo oscuro: no deben lanzar ni desbordar.
-  final darkScreens = ['Dashboard activo', 'Growth history', 'Settings', 'Subscription'];
+  final darkScreens = ['Dashboard activo', 'Feeding', 'Walks', 'Walk detail', 'Growth history', 'Settings', 'Subscription'];
   for (final name in darkScreens) {
     testWidgets('$name se construye (móvil, oscuro)', (tester) async {
       await _useMobileSurface(tester);
@@ -92,5 +99,21 @@ void main() {
     await tester.pump();
     expect(find.text('¡Bienvenido a Agenda Pet!'), findsOneWidget);
     expect(find.text('¡Comenzar!'), findsOneWidget);
+  });
+
+  // El paseo en vivo anima de forma continua (pulso "EN VIVO"), por eso NO se
+  // usa pumpAndSettle: nunca quedaría en reposo. Se avanza con pump() y al final
+  // se desmonta para que los controladores se liberen.
+  testWidgets('Paseo en vivo se construye y anima (móvil)', (tester) async {
+    await _useMobileSurface(tester);
+    await tester.pumpWidget(_wrap(const LiveWalkScreen()));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.byType(Scaffold), findsWidgets);
+    expect(find.text('EN VIVO'), findsOneWidget);
+    expect(find.text('Finalizar'), findsOneWidget);
+    // Desmonta para disparar dispose() de los AnimationController.
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump();
   });
 }
