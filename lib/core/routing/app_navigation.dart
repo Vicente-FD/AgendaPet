@@ -1,3 +1,4 @@
+import 'package:agenda_pet/core/mocks/walks_mock_data.dart';
 import 'package:agenda_pet/core/routing/app_router.dart';
 import 'package:agenda_pet/core/session/app_session.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +38,17 @@ extension AppNavigation on BuildContext {
   void goAddPet() => push(AppRoutes.addPet);
 
   void goAddReminder() => push(AppRoutes.addReminder);
+
+  void goFeeding() => push(AppRoutes.feeding);
+
+  void goAddFeeding() => push(AppRoutes.addFeeding);
+
+  void goWalks() => push(AppRoutes.walks);
+
+  void goLiveWalk() => push(AppRoutes.liveWalk);
+
+  void goWalkDetail(WalkRecord record) =>
+      push(AppRoutes.walkDetail, extra: record);
 
   void goGrowth() => push(AppRoutes.growth);
 

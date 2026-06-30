@@ -1,4 +1,5 @@
 // Rutas de la app. La raíz (/) manda a /onboarding.
+import 'package:agenda_pet/core/mocks/walks_mock_data.dart';
 import 'package:agenda_pet/features/account/presentation/user_profile_screen.dart';
 import 'package:agenda_pet/features/agenda/presentation/agenda_screen.dart';
 import 'package:agenda_pet/features/auth/presentation/login_screen.dart';
@@ -7,8 +8,10 @@ import 'package:agenda_pet/features/dashboard_active/presentation/dashboard_acti
 import 'package:agenda_pet/features/dashboard_empty/presentation/dashboard_empty_screen.dart';
 import 'package:agenda_pet/features/events/presentation/events_screen.dart';
 import 'package:agenda_pet/features/family/presentation/family_screen.dart';
+import 'package:agenda_pet/features/feeding/presentation/feeding_screen.dart';
 import 'package:agenda_pet/features/forms/presentation/add_appointment_screen.dart';
 import 'package:agenda_pet/features/forms/presentation/add_event_screen.dart';
+import 'package:agenda_pet/features/forms/presentation/add_feeding_screen.dart';
 import 'package:agenda_pet/features/forms/presentation/add_growth_screen.dart';
 import 'package:agenda_pet/features/forms/presentation/add_medicine_screen.dart';
 import 'package:agenda_pet/features/forms/presentation/add_pet_screen.dart';
@@ -28,6 +31,9 @@ import 'package:agenda_pet/features/subscription/presentation/subscription_scree
 import 'package:agenda_pet/features/subscription/presentation/subscription_success_screen.dart';
 import 'package:agenda_pet/features/tips/presentation/tips_screen.dart';
 import 'package:agenda_pet/features/vaccines/presentation/vaccines_screen.dart';
+import 'package:agenda_pet/features/walks/presentation/live_walk_screen.dart';
+import 'package:agenda_pet/features/walks/presentation/walk_detail_screen.dart';
+import 'package:agenda_pet/features/walks/presentation/walks_screen.dart';
 import 'package:agenda_pet/shared/widgets/app_shell.dart';
 import 'package:agenda_pet/shared/widgets/dev_route_menu.dart';
 import 'package:flutter/foundation.dart';
@@ -49,6 +55,11 @@ abstract final class AppRoutes {
   static const String addService = '/agregar-servicio';
   static const String addPet = '/agregar-mascota';
   static const String addReminder = '/agregar-recordatorio';
+  static const String feeding = '/alimentacion';
+  static const String addFeeding = '/agregar-alimento';
+  static const String walks = '/paseos';
+  static const String liveWalk = '/paseo-activo';
+  static const String walkDetail = '/paseo-detalle';
   static const String growth = '/crecimiento';
   static const String events = '/eventos';
   static const String tips = '/tips';
@@ -209,6 +220,46 @@ final GoRouter appRouter = GoRouter(
       pageBuilder: (context, state) => _slidePage(
         state: state,
         child: const AddReminderScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.feeding,
+      name: 'alimentacion',
+      pageBuilder: (context, state) => _slidePage(
+        state: state,
+        child: const FeedingScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.addFeeding,
+      name: 'agregar-alimento',
+      pageBuilder: (context, state) => _slidePage(
+        state: state,
+        child: const AddFeedingScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.walks,
+      name: 'paseos',
+      pageBuilder: (context, state) => _slidePage(
+        state: state,
+        child: const WalksScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.liveWalk,
+      name: 'paseo-activo',
+      pageBuilder: (context, state) => _slidePage(
+        state: state,
+        child: const LiveWalkScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.walkDetail,
+      name: 'paseo-detalle',
+      pageBuilder: (context, state) => _slidePage(
+        state: state,
+        child: WalkDetailScreen(record: state.extra as WalkRecord?),
       ),
     ),
     GoRoute(

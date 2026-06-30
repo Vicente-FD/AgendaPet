@@ -17,6 +17,9 @@ abstract final class AppColors {
   static const Color memories = Color(0xFFEC407A); // Eventos significativos (rosa)
   static const Color family = Color(0xFF5E35B1); // Familia compartida (morado)
   static const Color tips = Color(0xFFFFB300); // Tips inteligentes (ámbar)
+  static const Color feeding = Color(0xFFFB8C00); // Alimentación (naranja cálido)
+  static const Color walk = Color(0xFF3D5AFE); // Paseos / GPS (índigo vibrante)
+  static const Color walkAccent = Color(0xFF00B0FF); // Acento de degradado paseos
 
   static const Color textSecondary = Color(0xFF757575);
   static const Color scaffoldBackground = Color(0xFFF8F9FA);
