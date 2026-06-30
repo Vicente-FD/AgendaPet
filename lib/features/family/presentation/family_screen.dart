@@ -1,4 +1,5 @@
 import 'package:agenda_pet/core/mocks/family_mock_data.dart';
+import 'package:agenda_pet/core/routing/app_navigation.dart';
 import 'package:agenda_pet/core/theme/app_colors.dart';
 import 'package:agenda_pet/core/theme/app_surfaces.dart';
 import 'package:agenda_pet/shared/widgets/add_form_scaffold.dart';
@@ -41,6 +42,17 @@ class FamilyScreen extends StatelessWidget {
             label: 'Invitar a alguien',
             icon: Icons.person_add_alt_1,
             onPressed: () => _showInviteSheet(context),
+          ),
+          const SizedBox(height: 10),
+          OutlinedButton.icon(
+            onPressed: () => context.goWalks(),
+            icon: const Icon(Icons.directions_walk_rounded),
+            label: const Text('Ver paseos de la familia'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.walk,
+              side: const BorderSide(color: AppColors.walk),
+              minimumSize: const Size.fromHeight(48),
+            ),
           ),
         ],
       ),
@@ -248,14 +260,17 @@ class _MemberCard extends StatelessWidget {
               child: member.pending
                   ? Icon(Icons.hourglass_top_outlined,
                       color: member.avatarColor, size: 22)
-                  : Text(
-                      member.name.characters.first.toUpperCase(),
-                      style: TextStyle(
-                        color: member.avatarColor,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 18,
-                      ),
-                    ),
+                  : member.isWalker
+                      ? Icon(Icons.directions_walk_rounded,
+                          color: member.avatarColor, size: 24)
+                      : Text(
+                          member.name.characters.first.toUpperCase(),
+                          style: TextStyle(
+                            color: member.avatarColor,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 18,
+                          ),
+                        ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -290,7 +305,11 @@ class _MemberCard extends StatelessWidget {
                 ],
               ),
             ),
-            _RoleChip(label: member.role, pending: member.pending),
+            _RoleChip(
+              label: member.role,
+              pending: member.pending,
+              isWalker: member.isWalker,
+            ),
           ],
         ),
       ),
@@ -299,14 +318,23 @@ class _MemberCard extends StatelessWidget {
 }
 
 class _RoleChip extends StatelessWidget {
-  const _RoleChip({required this.label, required this.pending});
+  const _RoleChip({
+    required this.label,
+    required this.pending,
+    this.isWalker = false,
+  });
 
   final String label;
   final bool pending;
+  final bool isWalker;
 
   @override
   Widget build(BuildContext context) {
-    final color = pending ? AppColors.textSecondary : AppColors.family;
+    final color = pending
+        ? AppColors.textSecondary
+        : isWalker
+            ? AppColors.walk
+            : AppColors.family;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(

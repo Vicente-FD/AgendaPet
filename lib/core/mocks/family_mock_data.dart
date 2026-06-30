@@ -10,14 +10,16 @@ class FamilyMember {
     required this.avatarColor,
     this.isOwner = false,
     this.pending = false,
+    this.isWalker = false,
   });
 
   final String name;
-  final String role; // Administrador / Editor / Visualizador
+  final String role; // Administrador / Editor / Visualizador / Paseador
   final String relation; // Mamá, Papá, Hijo/a…
   final Color avatarColor;
   final bool isOwner;
   final bool pending; // invitación enviada, aún sin aceptar
+  final bool isWalker; // paseador profesional añadido a la familia
 }
 
 abstract final class FamilyMockData {
@@ -42,6 +44,13 @@ abstract final class FamilyMockData {
       role: 'Visualizador',
       relation: 'Hija',
       avatarColor: AppColors.memories,
+    ),
+    FamilyMember(
+      name: 'Diego',
+      role: 'Paseador',
+      relation: 'Paseador profesional · ⭐ 4.9',
+      avatarColor: AppColors.walk,
+      isWalker: true,
     ),
     FamilyMember(
       name: 'benjamin@correo.cl',
