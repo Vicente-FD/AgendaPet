@@ -112,6 +112,14 @@ class _ProfileTab extends StatelessWidget {
         SectionHeader(title: 'Más sobre ${pet.name}'),
         const SizedBox(height: 12),
         _LinkTile(
+          icon: Icons.folder_special_outlined,
+          color: AppColors.certificates,
+          title: 'Certificados y documentos',
+          subtitle: 'Vacunas, carnet, perro de compañía',
+          onTap: () => context.goCertificates(),
+        ),
+        const SizedBox(height: 10),
+        _LinkTile(
           icon: Icons.timeline_outlined,
           color: AppColors.growth,
           title: 'Historial de crecimiento',

@@ -18,7 +18,7 @@ Future<Uint8List?> showPhotoSourceSheet(BuildContext context) {
             ListTile(
               leading: const Icon(Icons.photo_camera_outlined,
                   color: AppColors.primary),
-              title: const Text('Tomar foto'),
+              title: const Text('Tomar foto / escanear'),
               onTap: () async {
                 final bytes = await ImagePickerHelper.pickFromCamera();
                 if (sheetContext.mounted) Navigator.pop(sheetContext, bytes);
@@ -51,6 +51,8 @@ class PhotoPickerField extends StatelessWidget {
     required this.onChanged,
     this.height = 160,
     this.color = AppColors.primary,
+    this.emptyHint = 'Toca para añadir una foto',
+    this.emptyIcon = Icons.add_a_photo_outlined,
   });
 
   final String label;
@@ -58,6 +60,8 @@ class PhotoPickerField extends StatelessWidget {
   final ValueChanged<Uint8List?> onChanged;
   final double height;
   final Color color;
+  final String emptyHint;
+  final IconData emptyIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -106,13 +110,17 @@ class PhotoPickerField extends StatelessWidget {
                   : Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.add_a_photo_outlined, color: color, size: 36),
+                        Icon(emptyIcon, color: color, size: 36),
                         const SizedBox(height: 8),
-                        Text(
-                          'Toca para añadir una foto',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            emptyHint,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                          ),
                         ),
                       ],
                     ),

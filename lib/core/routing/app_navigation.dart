@@ -31,6 +31,10 @@ extension AppNavigation on BuildContext {
 
   void goAddVaccine() => push(AppRoutes.addVaccine);
 
+  void goCertificates() => push(AppRoutes.certificates);
+
+  void goAddCertificate() => push(AppRoutes.addCertificate);
+
   void goAddMedicine() => push(AppRoutes.addMedicine);
 
   void goAddService() => push(AppRoutes.addService);

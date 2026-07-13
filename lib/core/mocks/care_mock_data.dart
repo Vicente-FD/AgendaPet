@@ -180,6 +180,41 @@ abstract final class CareMockData {
     ),
   ];
 
+  static const List<MockCareItem> certificateItems = [
+    MockCareItem(
+      title: 'Certificado vacuna antirrábica',
+      subtitle: 'Emitido el 30 de abril 2026',
+      detail: 'Clínica VetPet — vigente 1 año',
+      status: 'Vigente',
+      icon: Icons.verified_outlined,
+      iconColor: AppColors.certificates,
+    ),
+    MockCareItem(
+      title: 'Carnet de vacunas',
+      subtitle: 'Actualizado el 12 de enero 2026',
+      detail: 'Octuple + refuerzos — escaneado',
+      status: 'Al día',
+      icon: Icons.badge_outlined,
+      iconColor: AppColors.certificates,
+    ),
+    MockCareItem(
+      title: 'Certificado perro de compañía',
+      subtitle: 'Municipalidad — 5 de marzo 2026',
+      detail: 'Permite ingreso a espacios públicos',
+      status: 'Vigente',
+      icon: Icons.pets_outlined,
+      iconColor: AppColors.certificates,
+    ),
+    MockCareItem(
+      title: 'Registro de microchip',
+      subtitle: 'Chip 985.123.456',
+      detail: 'Documento de identificación oficial',
+      status: 'Archivado',
+      icon: Icons.memory_outlined,
+      iconColor: AppColors.certificates,
+    ),
+  ];
+
   static const List<MockCareItem> petAgendaItems = [
     MockCareItem(
       title: 'Baño',

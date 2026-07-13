@@ -4,12 +4,14 @@ import 'package:agenda_pet/features/account/presentation/user_profile_screen.dar
 import 'package:agenda_pet/features/agenda/presentation/agenda_screen.dart';
 import 'package:agenda_pet/features/auth/presentation/login_screen.dart';
 import 'package:agenda_pet/features/auth/presentation/register_screen.dart';
+import 'package:agenda_pet/features/certificates/presentation/certificates_screen.dart';
 import 'package:agenda_pet/features/dashboard_active/presentation/dashboard_active_screen.dart';
 import 'package:agenda_pet/features/dashboard_empty/presentation/dashboard_empty_screen.dart';
 import 'package:agenda_pet/features/events/presentation/events_screen.dart';
 import 'package:agenda_pet/features/family/presentation/family_screen.dart';
 import 'package:agenda_pet/features/feeding/presentation/feeding_screen.dart';
 import 'package:agenda_pet/features/forms/presentation/add_appointment_screen.dart';
+import 'package:agenda_pet/features/forms/presentation/add_certificate_screen.dart';
 import 'package:agenda_pet/features/forms/presentation/add_event_screen.dart';
 import 'package:agenda_pet/features/forms/presentation/add_feeding_screen.dart';
 import 'package:agenda_pet/features/forms/presentation/add_growth_screen.dart';
@@ -75,6 +77,8 @@ abstract final class AppRoutes {
   static const String checkout = '/pago';
   static const String subscriptionSuccess = '/suscripcion-exito';
   static const String pets = '/mis-mascotas';
+  static const String certificates = '/certificados';
+  static const String addCertificate = '/agregar-certificado';
 }
 
 final GoRouter appRouter = GoRouter(
@@ -188,6 +192,22 @@ final GoRouter appRouter = GoRouter(
       pageBuilder: (context, state) => _slidePage(
         state: state,
         child: const AddVaccineScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.certificates,
+      name: 'certificados',
+      pageBuilder: (context, state) => _slidePage(
+        state: state,
+        child: const CertificatesScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.addCertificate,
+      name: 'agregar-certificado',
+      pageBuilder: (context, state) => _slidePage(
+        state: state,
+        child: const AddCertificateScreen(),
       ),
     ),
     GoRoute(

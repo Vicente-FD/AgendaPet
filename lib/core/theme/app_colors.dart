@@ -20,6 +20,7 @@ abstract final class AppColors {
   static const Color feeding = Color(0xFFFB8C00); // Alimentación (naranja cálido)
   static const Color walk = Color(0xFF3D5AFE); // Paseos / GPS (índigo vibrante)
   static const Color walkAccent = Color(0xFF00B0FF); // Acento de degradado paseos
+  static const Color certificates = Color(0xFF546E7A); // Certificados / documentos (azul gris)
 
   static const Color textSecondary = Color(0xFF757575);
   static const Color scaffoldBackground = Color(0xFFF8F9FA);
