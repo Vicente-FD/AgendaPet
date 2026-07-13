@@ -1,8 +1,12 @@
+import 'dart:typed_data';
+
 import 'package:agenda_pet/core/theme/app_colors.dart';
-import 'package:agenda_pet/shared/widgets/add_form_scaffold.dart';
-import 'package:agenda_pet/shared/widgets/labeled_text_field.dart';
-import 'package:flutter/material.dart';
 import 'package:agenda_pet/core/utils/date_format.dart';
+import 'package:agenda_pet/shared/widgets/add_form_scaffold.dart';
+import 'package:agenda_pet/shared/widgets/labeled_dropdown_field.dart';
+import 'package:agenda_pet/shared/widgets/labeled_text_field.dart';
+import 'package:agenda_pet/shared/widgets/photo_picker_field.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class AddVaccineScreen extends StatefulWidget {
@@ -19,6 +23,14 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
   final _notesController = TextEditingController();
   final _dateController = TextEditingController();
 
+  String _status = 'Realizada';
+  Uint8List? _certificateScan;
+  String? _certificatePdf;
+
+  static const _statuses = ['Realizada', 'Programada', 'Próxima'];
+
+  bool get _wasAdministered => _status == 'Realizada';
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -26,6 +38,68 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
     _notesController.dispose();
     _dateController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2035),
+    );
+    if (picked == null || !mounted) return;
+
+    setState(() {
+      _dateController.text = formatShortDate(picked);
+    });
+  }
+
+  Future<void> _attachMockPdf() async {
+    setState(() {
+      _certificatePdf =
+          'certificado_vacuna_${DateTime.now().millisecondsSinceEpoch}.pdf';
+      _certificateScan = null;
+    });
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(
+          content: Text('Certificado PDF adjunto (vista previa)'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+  }
+
+  void _submit() {
+    if (!_formKey.currentState!.validate()) return;
+
+    if (_wasAdministered &&
+        _certificateScan == null &&
+        _certificatePdf == null) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Si la vacuna ya se realizó, escanea o adjunta el certificado',
+            ),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      return;
+    }
+
+    final suffix = _wasAdministered &&
+            (_certificateScan != null || _certificatePdf != null)
+        ? ' con certificado'
+        : '';
+
+    showFormSavedSnackBar(
+      context,
+      'Vacuna "${_nameController.text.trim()}" registrada$suffix',
+    );
+    context.pop();
   }
 
   @override
@@ -47,8 +121,24 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
               value == null || value.trim().isEmpty ? 'Ingresa el nombre' : null,
           textInputAction: TextInputAction.next,
         ),
+        LabeledDropdownField<String>(
+          label: 'Estado',
+          value: _status,
+          items: _statuses
+              .map(
+                (status) => DropdownMenuItem(
+                  value: status,
+                  child: Text(status),
+                ),
+              )
+              .toList(),
+          onChanged: (value) {
+            if (value == null) return;
+            setState(() => _status = value);
+          },
+        ),
         LabeledTextField(
-          label: 'Fecha',
+          label: _wasAdministered ? 'Fecha de aplicación' : 'Fecha',
           controller: _dateController,
           hint: 'Selecciona una fecha',
           readOnly: true,
@@ -63,6 +153,35 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
           hint: 'Ej: Clínica VetPet',
           textInputAction: TextInputAction.next,
         ),
+        if (_wasAdministered) ...[
+          PhotoPickerField(
+            label: 'Certificado de la vacuna',
+            imageBytes: _certificateScan,
+            color: AppColors.actionVaccines,
+            emptyHint: 'Escanea o fotografía el certificado / carnet',
+            emptyIcon: Icons.document_scanner_outlined,
+            onChanged: (bytes) => setState(() {
+              _certificateScan = bytes;
+              if (bytes != null) _certificatePdf = null;
+            }),
+          ),
+          OutlinedButton.icon(
+            onPressed: _attachMockPdf,
+            icon: const Icon(Icons.picture_as_pdf_outlined),
+            label: Text(
+              _certificatePdf == null
+                  ? 'Adjuntar certificado PDF'
+                  : 'PDF: $_certificatePdf',
+            ),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.actionVaccines,
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+        ],
         LabeledTextField(
           label: 'Notas (opcional)',
           controller: _notesController,
@@ -72,29 +191,5 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
         ),
       ],
     );
-  }
-
-  Future<void> _pickDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2030),
-    );
-    if (picked == null || !mounted) return;
-
-    setState(() {
-      _dateController.text = formatShortDate(picked);
-    });
-  }
-
-  void _submit() {
-    if (!_formKey.currentState!.validate()) return;
-
-    showFormSavedSnackBar(
-      context,
-      'Vacuna "${_nameController.text.trim()}" registrada',
-    );
-    context.pop();
   }
 }
