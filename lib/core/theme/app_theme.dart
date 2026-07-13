@@ -13,9 +13,16 @@ abstract final class AppTheme {
 
   static ThemeData _build(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
-    final baseTextTheme = GoogleFonts.interTextTheme(
-      isDark ? ThemeData(brightness: Brightness.dark).textTheme : null,
-    );
+    // Fallback local si Google Fonts no puede descargar (evita pantalla blanca en web).
+    final fallback = isDark
+        ? ThemeData(brightness: Brightness.dark).textTheme
+        : ThemeData(brightness: Brightness.light).textTheme;
+    TextTheme baseTextTheme;
+    try {
+      baseTextTheme = GoogleFonts.interTextTheme(fallback);
+    } catch (_) {
+      baseTextTheme = fallback;
+    }
     final colorScheme = ColorScheme.fromSeed(
       seedColor: AppColors.primary,
       brightness: brightness,

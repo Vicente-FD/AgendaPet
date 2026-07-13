@@ -13,92 +13,102 @@ class OnboardingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.scaffoldBackground,
       body: PawPrintBackground(
         color: AppColors.primary,
         opacity: 0.05,
         child: SafeArea(
           child: LayoutBuilder(
-            builder: (context, constraints) => SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: IntrinsicHeight(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        const SizedBox(height: 24),
+                        const AppLogo(iconSize: 32),
                         const SizedBox(height: 32),
-                const AppLogo(iconSize: 32),
-                const Spacer(),
-                const AnimatedEntrance(child: PetsIllustration()),
-                const SizedBox(height: 32),
-                AnimatedEntrance(
-                  delay: const Duration(milliseconds: 120),
-                  child: Text(
-                    '¡Bienvenido a Agenda Pet!',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: AppColors.primary,
-                          fontWeight: FontWeight.w700,
+                        const AnimatedEntrance(child: PetsIllustration()),
+                        const SizedBox(height: 32),
+                        AnimatedEntrance(
+                          delay: const Duration(milliseconds: 120),
+                          child: Text(
+                            '¡Bienvenido a Agenda Pet!',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                          ),
                         ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                AnimatedEntrance(
-                  delay: const Duration(milliseconds: 200),
-                  child: Text(
-                    'Organiza y cuida a tus mascotas fácilmente',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: AppColors.textSecondary,
+                        const SizedBox(height: 12),
+                        AnimatedEntrance(
+                          delay: const Duration(milliseconds: 200),
+                          child: Text(
+                            'Organiza y cuida a tus mascotas fácilmente',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.copyWith(
+                                  color: AppColors.textSecondary,
+                                ),
+                          ),
                         ),
-                  ),
-                ),
-                const SizedBox(height: 28),
-                const AnimatedEntrance(
-                  delay: Duration(milliseconds: 280),
-                  child: Row(
-                    children: [
-                    Expanded(
-                      child: _FeatureHighlight(
-                        icon: Icons.notifications_active_outlined,
-                        label: 'Recordatorios',
-                        color: AppColors.actionCalendar,
-                      ),
-                    ),
-                    Expanded(
-                      child: _FeatureHighlight(
-                        icon: Icons.timeline_outlined,
-                        label: 'Crecimiento',
-                        color: AppColors.growth,
-                      ),
-                    ),
-                    Expanded(
-                      child: _FeatureHighlight(
-                        icon: Icons.tips_and_updates_outlined,
-                        label: 'Tips',
-                        color: AppColors.tips,
-                      ),
-                    ),
-                  ],
-                  ),
-                ),
-                const Spacer(),
-                PrimaryButton(
-                  label: '¡Comenzar!',
-                  onPressed: () => context.goRegister(),
-                ),
-                const SizedBox(height: 4),
-                TextButton(
-                  onPressed: () => context.goLogin(),
-                  child: const Text('Ya tengo cuenta · Iniciar sesión'),
-                ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 28),
+                        const AnimatedEntrance(
+                          delay: Duration(milliseconds: 280),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: _FeatureHighlight(
+                                  icon: Icons.notifications_active_outlined,
+                                  label: 'Recordatorios',
+                                  color: AppColors.actionCalendar,
+                                ),
+                              ),
+                              Expanded(
+                                child: _FeatureHighlight(
+                                  icon: Icons.timeline_outlined,
+                                  label: 'Crecimiento',
+                                  color: AppColors.growth,
+                                ),
+                              ),
+                              Expanded(
+                                child: _FeatureHighlight(
+                                  icon: Icons.tips_and_updates_outlined,
+                                  label: 'Tips',
+                                  color: AppColors.tips,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 40),
+                        PrimaryButton(
+                          label: '¡Comenzar!',
+                          onPressed: () => context.goRegister(),
+                        ),
+                        const SizedBox(height: 4),
+                        TextButton(
+                          onPressed: () => context.goLogin(),
+                          child: const Text(
+                            'Ya tengo cuenta · Iniciar sesión',
+                          ),
+                        ),
+                        const SizedBox(height: 24),
                       ],
                     ),
                   ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
         ),
       ),
