@@ -1,11 +1,11 @@
 {
   "dart.flutterRunAdditionalArgs": [
     "--web-port=3000",
-    "--web-hostname=localhost"
+    "--web-hostname=0.0.0.0"
   ],
   "dart.flutterTestAdditionalArgs": [
     "--web-port=3000",
-    "--web-hostname=localhost"
+    "--web-hostname=0.0.0.0"
   ],
   "dart.flutterHotReloadOnSave": "allIfDirty",
   "files.autoSave": "afterDelay",
