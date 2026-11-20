@@ -1,13 +1,21 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- Requerida para hablar con la API y cargar los mapas. -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <!-- Avisos de recordatorios (Android 13+). -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <!-- Reprogramar los avisos después de reiniciar el teléfono. -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-    <!-- Ubicación durante los paseos (solo con la app abierta). -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <!-- Ubicación: la usan los Paseos, que NO entran en la v1.0 (van ocultos tras
+         AppConfig.mostrarEnDesarrollo). Se quitan del paquete publicado, incluidas
+         las que inyecta el plugin geolocator al fusionar manifiestos: Google Play
+         exige justificar el permiso mostrando la función, y una pantalla oculta no
+         se puede justificar. Al publicar Paseos (v1.2), borrar el tools:node y
+         dejar solo los uses-permission. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"
+        tools:node="remove"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"
+        tools:node="remove"/>
     <application
         android:label="Agenda Pet"
         android:name="${applicationName}"
