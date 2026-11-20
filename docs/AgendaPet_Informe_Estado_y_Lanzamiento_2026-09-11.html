@@ -1,0 +1,810 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Agenda Pet — Informe de estado, lanzamiento y costos</title>
+<style>
+  @page { size: A4; margin: 17mm 16mm 18mm 16mm;
+    @bottom-left { content: "Agenda Pet · Informe de estado y lanzamiento · 11-09-2026"; font: 8pt "Segoe UI", Arial, sans-serif; color: #8a948e; }
+    @bottom-right { content: "Pág. " counter(page); font: 8pt "Segoe UI", Arial, sans-serif; color: #8a948e; }
+  }
+  @page :first { margin: 0; @bottom-left { content: none; } @bottom-right { content: none; } }
+
+  :root {
+    --g: #43A047; --gd: #2E7D32; --gl: #E8F5E9; --gll: #F4FAF4;
+    --ink: #1d2721; --muted: #5f6b64; --line: #dfe6e1;
+    --amber: #F59E0B; --amberl: #FFF6E5; --red: #D93025; --redl: #FDECEA;
+    --blue: #1E6FD9; --bluel: #EAF2FD; --gray: #9aa5a0;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; font-size: 9.6pt; line-height: 1.45; color: var(--ink); background: #fff; }
+
+  /* ---------- Portada ---------- */
+  .cover { height: 297mm; width: 210mm; position: relative; overflow: hidden; background: linear-gradient(160deg, #2E7D32 0%, #43A047 55%, #66BB6A 100%); color: #fff; padding: 30mm 22mm; }
+  .cover .paws { position: absolute; right: -30mm; bottom: -20mm; width: 150mm; opacity: .10; }
+  .cover .badge { width: 34mm; height: 34mm; background: #fff; border-radius: 9mm; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 24px rgba(0,0,0,.18); }
+  .cover .badge svg { width: 25mm; height: auto; }
+  .cover h1 { font-size: 40pt; margin: 16mm 0 3mm; letter-spacing: -.5pt; line-height: 1.05; }
+  .cover .sub { font-size: 16pt; font-weight: 300; margin: 0 0 12mm; max-width: 150mm; }
+  .cover .topics { list-style: none; padding: 0; margin: 0 0 18mm; font-size: 11pt; }
+  .cover .topics li { padding: 2.2mm 0 2.2mm 7mm; position: relative; border-bottom: 1px solid rgba(255,255,255,.22); max-width: 150mm; }
+  .cover .topics li::before { content: ""; position: absolute; left: 0; top: 4.2mm; width: 3mm; height: 3mm; border-radius: 50%; background: #C8E6C9; }
+  .cover .meta { position: absolute; left: 22mm; bottom: 26mm; font-size: 10pt; line-height: 1.7; }
+  .cover .meta b { font-weight: 600; }
+  .cover .conf { position: absolute; right: 22mm; bottom: 26mm; font-size: 8.5pt; opacity: .85; text-align: right; }
+
+  /* ---------- Tipografía ---------- */
+  h1.sec { font-size: 20pt; color: var(--gd); margin: 0 0 1mm; padding-top: 0; break-before: page; letter-spacing: -.2pt; }
+  h1.sec .n { display: inline-block; min-width: 10mm; color: var(--g); }
+  .lead { color: var(--muted); font-size: 10.5pt; margin: 0 0 6mm; border-bottom: 2px solid var(--gl); padding-bottom: 3mm; }
+  h2 { font-size: 13pt; color: var(--ink); margin: 7mm 0 2.5mm; break-after: avoid; }
+  h2 .n { color: var(--g); margin-right: 1.5mm; }
+  h3 { font-size: 10.8pt; margin: 5mm 0 2mm; color: var(--gd); break-after: avoid; }
+  p { margin: 0 0 2.6mm; }
+  ul, ol { margin: 0 0 3mm; padding-left: 5.5mm; }
+  li { margin: 0 0 1.2mm; }
+  code, .mono { font-family: Consolas, "Cascadia Mono", monospace; font-size: 8.4pt; background: #f1f4f2; padding: .2mm 1.2mm; border-radius: 1mm; color: #24402b; }
+  a { color: var(--blue); text-decoration: none; }
+  small, .small { font-size: 8.4pt; color: var(--muted); }
+  b, strong { font-weight: 600; }
+
+  /* ---------- Componentes ---------- */
+  table { width: 100%; border-collapse: collapse; margin: 1.5mm 0 4mm; font-size: 8.9pt; break-inside: auto; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  th { background: var(--gl); color: var(--gd); text-align: left; font-weight: 600; padding: 2mm 2.4mm; border-bottom: 1.5px solid #c5dcc8; }
+  td { padding: 1.9mm 2.4mm; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  td.num, th.num { text-align: right; white-space: nowrap; }
+  tfoot td { font-weight: 600; background: var(--gll); border-top: 1.5px solid #c5dcc8; }
+
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; margin: 2mm 0 5mm; }
+  .kpi { border: 1px solid var(--line); border-radius: 3mm; padding: 3mm 3.2mm; background: var(--gll); break-inside: avoid; }
+  .kpi .v { font-size: 17pt; font-weight: 700; color: var(--gd); line-height: 1.1; }
+  .kpi .l { font-size: 8.3pt; color: var(--muted); margin-top: 1mm; }
+
+  .callout { border-radius: 2.5mm; padding: 3mm 3.6mm; margin: 2mm 0 4mm; border-left: 4px solid var(--blue); background: var(--bluel); break-inside: avoid; }
+  .callout.warn { border-color: var(--amber); background: var(--amberl); }
+  .callout.crit { border-color: var(--red); background: var(--redl); }
+  .callout.ok { border-color: var(--g); background: var(--gl); }
+  .callout .t { font-weight: 700; display: block; margin-bottom: 1mm; }
+  .callout p:last-child, .callout ul:last-child { margin-bottom: 0; }
+
+  .tag { display: inline-block; font-size: 7.4pt; font-weight: 700; letter-spacing: .2pt; padding: .4mm 1.8mm; border-radius: 5mm; text-transform: uppercase; white-space: nowrap; }
+  .tag.crit { background: var(--redl); color: #a3241b; }
+  .tag.high { background: var(--amberl); color: #92580a; }
+  .tag.med { background: var(--bluel); color: #1a56a8; }
+  .tag.ok { background: var(--gl); color: var(--gd); }
+  .tag.gray { background: #eef0ef; color: #5f6b64; }
+
+  .bar { height: 2.4mm; background: #e9eeea; border-radius: 2mm; overflow: hidden; margin-top: 1mm; min-width: 28mm; }
+  .bar i { display: block; height: 100%; background: var(--g); border-radius: 2mm; }
+  .bar.low i { background: var(--amber); }
+
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+  .card { border: 1px solid var(--line); border-radius: 3mm; padding: 3mm 3.6mm; break-inside: avoid; }
+  .card h3 { margin-top: 0; }
+
+  .steps { counter-reset: s; list-style: none; padding: 0; margin: 2mm 0 4mm; }
+  .steps > li { counter-increment: s; position: relative; padding: 2.4mm 2mm 2.4mm 11mm; border-bottom: 1px dashed var(--line); break-inside: avoid; margin: 0; }
+  .steps > li::before { content: counter(s); position: absolute; left: 0; top: 2.2mm; width: 7mm; height: 7mm; border-radius: 50%; background: var(--g); color: #fff; font-weight: 700; font-size: 9pt; display: flex; align-items: center; justify-content: center; }
+  .steps .time { float: right; font-size: 8pt; color: var(--gd); background: var(--gl); border-radius: 5mm; padding: .3mm 2mm; margin-left: 3mm; }
+  .steps b.h { display: block; margin-bottom: .6mm; }
+
+  .flow { display: flex; align-items: stretch; gap: 0; margin: 3mm 0 5mm; break-inside: avoid; }
+  .flow .box { flex: 1; border: 1.5px solid #c5dcc8; background: var(--gll); border-radius: 2.5mm; padding: 2.6mm; font-size: 8.4pt; text-align: center; }
+  .flow .box b { display: block; color: var(--gd); font-size: 9pt; margin-bottom: .8mm; }
+  .flow .arr { width: 5mm; flex: 0 0 5mm; display: flex; align-items: center; justify-content: center; color: var(--g); font-size: 14pt; font-weight: 700; }
+
+  .diagram { border: 1px solid var(--line); border-radius: 3mm; padding: 2mm; margin: 2mm 0 4mm; break-inside: avoid; }
+  .legend { display: flex; gap: 6mm; font-size: 8pt; color: var(--muted); padding: 1mm 2mm 0; flex-wrap: wrap; }
+  .legend span::before { content: ""; display: inline-block; width: 3.2mm; height: 3.2mm; border-radius: .8mm; margin-right: 1.5mm; vertical-align: -0.5mm; border: 1.6px solid; }
+  .legend .l-ok::before { border-color: #43A047; background: #E8F5E9; }
+  .legend .l-cfg::before { border-color: #F59E0B; background: #FFF6E5; }
+  .legend .l-pend::before { border-color: #9aa5a0; border-style: dashed; background: #fafbfa; }
+
+  .toc { columns: 2; column-gap: 8mm; font-size: 10pt; margin-top: 3mm; }
+  .toc div { break-inside: avoid; padding: 1.4mm 0; border-bottom: 1px dotted var(--line); }
+  .toc b { color: var(--g); display: inline-block; min-width: 7mm; }
+
+  .gantt td { font-size: 8.3pt; padding: 1.5mm 1.2mm; }
+  .gantt td.c { text-align: center; }
+  .gantt .on { background: #A5D6A7; }
+  .gantt .on2 { background: #81C784; }
+  .gantt .qa { background: #FFE0A3; }
+  .gantt .rel { background: #2E7D32; color: #fff; font-weight: 700; }
+  .gantt th.c { text-align: center; font-size: 7.8pt; padding: 1.5mm .5mm; }
+
+  .src li { font-size: 8.2pt; word-break: break-all; margin-bottom: .9mm; }
+  .avoid { break-inside: avoid; }
+  .nb { white-space: nowrap; }
+  .pb { break-before: page; }
+  .muted { color: var(--muted); }
+  hr.soft { border: none; border-top: 1px solid var(--line); margin: 4mm 0; }
+  pre.code { font-family: Consolas, "Cascadia Mono", monospace; font-size: 8.2pt; background: #1f2a24; color: #d7f0da; padding: 3mm 3.6mm; border-radius: 2.5mm; margin: 1.5mm 0 3mm; white-space: pre-wrap; break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<!-- ======================= PORTADA ======================= -->
+<section class="cover">
+  <svg class="paws" viewBox="0 0 128 116" fill="#fff"><ellipse cx="32" cy="48" rx="12" ry="16" transform="rotate(-18 32 48)"/><ellipse cx="55" cy="31" rx="13" ry="19"/><ellipse cx="81" cy="31" rx="13" ry="19"/><ellipse cx="104" cy="48" rx="12" ry="16" transform="rotate(18 104 48)"/><path d="M50 58 h28 a15 15 0 0 1 15 15 v22 a15 15 0 0 1 -15 15 h-28 a15 15 0 0 1 -15 -15 v-22 a15 15 0 0 1 15 -15 z"/></svg>
+  <div class="badge">
+    <svg viewBox="0 0 128 116" fill="none"><g fill="#43A047"><ellipse cx="32" cy="48" rx="12" ry="16" transform="rotate(-18 32 48)"/><ellipse cx="55" cy="31" rx="13" ry="19"/><ellipse cx="81" cy="31" rx="13" ry="19"/><ellipse cx="104" cy="48" rx="12" ry="16" transform="rotate(18 104 48)"/><rect x="52" y="49" width="8" height="19" rx="4"/><rect x="76" y="49" width="8" height="19" rx="4"/><path fill-rule="evenodd" clip-rule="evenodd" d="M50 58 h28 a15 15 0 0 1 15 15 v22 a15 15 0 0 1 -15 15 h-28 a15 15 0 0 1 -15 -15 v-22 a15 15 0 0 1 15 -15 z M52 74 h24 a5 5 0 0 1 5 5 v14 a5 5 0 0 1 -5 5 h-24 a5 5 0 0 1 -5 -5 v-14 a5 5 0 0 1 5 -5 z"/><rect x="51" y="77" width="6.5" height="6.5" rx="1.7"/><rect x="60.5" y="77" width="6.5" height="6.5" rx="1.7"/><rect x="70" y="77" width="6.5" height="6.5" rx="1.7"/><rect x="51" y="86.5" width="6.5" height="6.5" rx="1.7"/><rect x="60.5" y="86.5" width="6.5" height="6.5" rx="1.7"/></g><path d="M70 89.5 l3.2 3.2 l6.3 -7" fill="none" stroke="#43A047" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+  <h1>Agenda Pet</h1>
+  <p class="sub">Informe de estado del proyecto, plan de lanzamiento y costos de operación</p>
+  <ul class="topics">
+    <li>Estado real del código: app, backend e integración</li>
+    <li>Qué falta para publicar en App Store y Google Play</li>
+    <li>Arquitectura y conexiones con Supabase</li>
+    <li>Proceso en Chile para recibir pagos de las tiendas</li>
+    <li>Costos para levantar y mantener el servicio</li>
+    <li>Cronograma y fecha estimada de salida</li>
+  </ul>
+  <div class="meta">
+    <b>Fecha:</b> 11 de septiembre de 2026<br>
+    <b>Proyecto:</b> Vicente FD · Mauro Castro Lazcano<br>
+    <b>Repositorio:</b> github.com/Vicente-FD/AgendaPet
+  </div>
+  <div class="conf">Base del análisis: rama <i>main</i> (commit 9ebc5ba)<br>+ cambios locales sin commitear al 11-09-2026</div>
+</section>
+
+<!-- ======================= ÍNDICE + RESUMEN ======================= -->
+<section>
+  <h1 class="sec" style="break-before: auto; margin-top: 0;">Contenido</h1>
+  <div class="toc">
+    <div><b>1</b>Resumen ejecutivo</div>
+    <div><b>2</b>Estado actual del proyecto</div>
+    <div><b>3</b>Arquitectura y conexiones con Supabase</div>
+    <div><b>4</b>Qué falta para publicar</div>
+    <div><b>5</b>Plan de lanzamiento y fechas</div>
+    <div><b>6</b>Cómo recibir pagos en Chile (App Store y Google Play)</div>
+    <div><b>7</b>Costos para levantar y operar el servicio</div>
+    <div><b>8</b>Próximos pasos</div>
+    <div><b>A</b>Anexo: fuentes consultadas</div>
+  </div>
+
+  <h1 class="sec" style="break-before: auto; margin-top: 9mm;"><span class="n">1</span>Resumen ejecutivo</h1>
+  <p class="lead">La interfaz está casi terminada y el backend tiene una base sólida, pero la app todavía funciona completa con datos de ejemplo. El trabajo que queda es conectar, reforzar y preparar la salida a tiendas. La meta acordada es <b>entregar al cliente en septiembre y publicar en tiendas a fines de octubre</b>, con cuentas y nube desde el primer día, lo que exige recortar módulos (sección 5).</p>
+
+  <div class="kpis">
+    <div class="kpi"><div class="v">~65%</div><div class="l">Avance del proyecto hacia la v1.0 publicada</div></div>
+    <div class="kpi"><div class="v">7 sem.</div><div class="l">Plan acordado, con 2 personas a tiempo completo</div></div>
+    <div class="kpi"><div class="v">Fin oct.</div><div class="l">Publicación en tiendas (entrega al cliente en septiembre)</div></div>
+    <div class="kpi"><div class="v">USD 39–73</div><div class="l">Costo mensual de infraestructura al lanzar (≈ CLP 36–68 mil)</div></div>
+  </div>
+
+  <p class="small" style="margin-top:-2mm"><b>Cómo se mide ese 65%:</b> por esfuerzo. Desde el 8 de junio se han invertido del orden de 26 semanas-persona (interfaz completa, arquitectura, esquema de datos de 16 tablas y la base del backend) y quedan unas 14 por delante para llegar a la v1.0 publicada. Lo construido es la parte más voluminosa; lo que falta es la más riesgosa, porque concentra la integración y los requisitos de las tiendas. El detalle por área, separando lo diseñado de lo implementado, está en la sección 2.1.</p>
+
+  <h3>Conclusiones principales</h3>
+  <ul>
+    <li><b>Interfaz (~90%).</b> 36 rutas y más de 30 pantallas, con modo oscuro y animaciones. El análisis estático no marca problemas y los 48 tests automáticos pasan.</li>
+    <li><b>El backend ya tiene resuelta su parte difícil.</b> El esquema de 16 tablas cubre todas las funciones del producto y están funcionando las cuentas con Google y Apple, la renovación de sesión, los permisos por mascota y 27 endpoints, más la validación de compras de ambas tiendas. Medido contra la v1.0, va en torno a la mitad: lo que resta son módulos que <b>replican un patrón ya resuelto</b> y el despliegue en un servidor.</li>
+    <li><b>La integración está validada de punta a punta.</b> El 13 de agosto, registro, sesión y mascotas funcionaron contra el backend real, y la plomería (cliente HTTP, manejo de sesión, repositorios) está construida. Conectar el resto de las pantallas es repetir ese mismo camino; hasta hacerlo, siguen mostrando datos de ejemplo.</li>
+    <li><b>Los requisitos de las tiendas están identificados uno por uno</b> (permisos, firma, ícono, borrado de cuenta y fichas, sección 4.1). Son tareas conocidas y acotadas, pero hay que ejecutarlas antes de poder publicar.</li>
+    <li><b>Al cerrar la v1.0</b>, backend e integración llegan sobre el <b>90%</b> y lo único pendiente será la ronda de pruebas en teléfonos reales, antes de enviar a revisión.</li>
+    <li><b>Para cobrar en Chile conviene una SpA.</b> Constituirla es gratis y toma un día, pero el <span class="nb">D-U-N-S</span> y las cuentas de empresa pueden tardar de 2 a 4 semanas, y de cero al primer pago pasan 2 a 3 meses. Apple recauda el IVA de las ventas en Chile; <b>Google no</b>, así que la empresa debe declararlo (sección 6).</li>
+    <li><b>Costos:</b> ~USD 137 el primer año en cuentas, dominio y firmas, más USD 39–73 al mes de infraestructura al lanzar. Con el PRO a $3.990 cada suscriptor deja ≈ $2.850, así que unos 24 suscriptores cubren la infraestructura (sección 7).</li>
+    <li><b>Lo que manda la fecha de Android</b> no es el desarrollo: si la cuenta de Google es personal, exige una prueba cerrada con 12 testers durante 14 días seguidos antes de publicar. <b>Esa prueba tiene que empezar la semana del 14 de septiembre</b>, aunque sea con la versión actual; si se atrasa, se atrasa la publicación.</li>
+  </ul>
+
+  <div class="callout crit">
+    <span class="t">Riesgo inmediato: trabajo sin respaldo</span>
+    El último commit es del <b>12 de julio de 2026</b>. El backend completo, la capa de datos de la app y el mapa/GPS real (13 archivos modificados, +815/−518 líneas, más la carpeta <code>BACKEND/</code> y 6 carpetas nuevas) <b>no están en git</b>. Hay que subirlo al repositorio antes de cualquier otra cosa. El archivo con la clave de Supabase (<code>BACKEND/.env</code>) ya está excluido, así que subirlo es seguro.
+  </div>
+
+  <h3>Decisiones que se necesitan ahora</h3>
+  <table>
+    <thead><tr><th style="width:34%">Decisión</th><th>Por qué importa</th></tr></thead>
+    <tbody>
+      <tr><td><b>Dedicación real del equipo</b> <span class="tag crit">Sin confirmar</span></td><td>El plan de octubre <b>supone a las dos personas a tiempo completo</b>. A medio tiempo la publicación se va a diciembre. Es el supuesto más frágil de todo el documento.</td></tr>
+      <tr><td>Alcance de la v1.0 <span class="tag ok">Decidido</span></td><td>Con cuentas y nube desde el primer día, sin paseos, familia, certificados, crecimiento, eventos ni PRO. Esos accesos se <b>ocultan</b> en la v1.0: las tiendas rechazan pantallas de demostración con datos de ejemplo.</td></tr>
+      <tr><td>Persona natural o empresa (SpA)</td><td>Define a nombre de quién quedan las cuentas de Apple y Google, cómo se cobra y cómo se tributa. Crear la empresa y obtener el número <span class="nb">D-U-N-S</span> toma semanas, así que conviene partir ya.</td></tr>
+      <tr><td>Identificador definitivo de la app</td><td>Hoy hay tres distintos (<code>com.agendapet.agenda_pet</code>, <code>com.agendapet.agendaPet</code>, <code>cl.agendapet.app</code>). No se puede cambiar después de publicar.</td></tr>
+      <tr><td>Cierre formal de la Fase 1 con el cliente</td><td>La propuesta condiciona el Pago 2 ($1.333.333 CLP) a la entrega de un APK, un link de TestFlight y la aprobación de la matriz de 4 pantallas.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ======================= 2. ESTADO ======================= -->
+<section>
+  <h1 class="sec" style="break-before: auto; margin-top: 8mm;"><span class="n">2</span>Estado actual del proyecto</h1>
+  <p class="lead">Revisión directa del repositorio: código Flutter (<code>lib/</code>), backend (<code>BACKEND/</code>), configuración nativa de Android e iOS y documentación.</p>
+
+  <h2><span class="n">2.1</span>Avance por área</h2>
+  <p class="small">Separado en <b>diseñado</b> (decidido, modelado y con el camino técnico resuelto) e <b>implementado</b> (escrito, funcionando y verificable hoy). Los porcentajes se miden <b>contra el alcance de la v1.0</b> definido en la sección 5, no contra el producto completo. La última columna muestra a dónde llega cada área al cerrar esa versión, a fines de octubre.</p>
+  <table>
+    <thead><tr><th style="width:20%">Área</th><th style="width:15%">Diseñado</th><th style="width:15%">Implementado hoy</th><th style="width:14%">Al cierre de la v1.0</th><th>Comentario</th></tr></thead>
+    <tbody>
+      <tr><td><b>Producto e interfaz</b></td><td>100%<div class="bar"><i style="width:100%"></i></div></td><td>~90%<div class="bar"><i style="width:90%"></i></div></td><td>100%</td><td>105 archivos Dart, ~13.600 líneas, 36 rutas, tema claro y oscuro. Es la parte que el usuario ve y está construida.</td></tr>
+      <tr><td><b>Backend (API)</b></td><td>100%<div class="bar"><i style="width:100%"></i></div></td><td>~50%<div class="bar"><i style="width:50%"></i></div></td><td>~90%</td><td>El <b>esquema de 16 tablas cubre todas las funciones del producto</b>, incluso las que no entran en la v1.0. Hechos 18 de unos 35 endpoints de la v1.0, más toda la parte transversal: sesiones, permisos por mascota, validación y manejo de errores. Paseos y validación de compras ya están construidos para versiones siguientes.</td></tr>
+      <tr><td><b>Integración app ↔ API</b></td><td>100%<div class="bar"><i style="width:100%"></i></div></td><td>~15%<div class="bar low"><i style="width:15%"></i></div></td><td>~90%</td><td>El camino está <b>validado de punta a punta</b>: el 13 de agosto, registro, sesión y mascotas funcionaron contra el backend real. La plomería (cliente HTTP, sesión, repositorios) está construida; falta repetirla en el resto de las pantallas.</td></tr>
+      <tr><td><b>Preparación para tiendas</b></td><td>100%<div class="bar"><i style="width:100%"></i></div></td><td>~5%<div class="bar low"><i style="width:5%"></i></div></td><td>100%</td><td>Está identificado uno por uno lo que exigen Apple y Google (sección 4.1). Falta ejecutarlo: permisos, firma, ícono, fichas y revisión.</td></tr>
+      <tr><td><b>Pruebas en dispositivos reales</b></td><td>100%</td><td>—</td><td>100%</td><td>Hoy hay 48 tests automáticos de pantallas. La ronda de pruebas en teléfonos reales es el último paso antes de publicar, en las semanas 5 a 7.</td></tr>
+    </tbody>
+  </table>
+  <div class="callout ok"><span class="t">Por qué el proyecto está más avanzado de lo que sugiere un porcentaje</span>
+    <ul style="margin-bottom:0">
+      <li><b>No queda nada por inventar.</b> El producto está definido, las pantallas están construidas y el modelo de datos cubre todas las funciones, incluidas las de versiones futuras.</li>
+      <li><b>La parte difícil del backend ya está hecha:</b> cuentas con Google y Apple, renovación de sesión, permisos por mascota y validación de compras de ambas tiendas.</li>
+      <li><b>El camino de integración está probado de punta a punta</b>, así que conectar el resto es repetir un patrón conocido.</li>
+      <li>Lo que falta es <b>ejecución y verificación</b>: replicar módulos, desplegar el servidor y probar en teléfonos reales. Es trabajo predecible, sin incertidumbre técnica.</li>
+    </ul>
+  </div>
+
+  <h2><span class="n">2.2</span>Qué está construido</h2>
+  <div class="two">
+    <div class="card">
+      <h3>App (interfaz, con datos de ejemplo)</h3>
+      <ul class="small" style="color:var(--ink)">
+        <li>Bienvenida, login y registro, perfil de usuario y ajustes</li>
+        <li>Inicio con selector de mascotas, "Mis mascotas" y ficha con pestañas</li>
+        <li>Agenda mensual, vacunas, medicinas, servicios y alimentación con calculadora de ración</li>
+        <li>10 formularios de alta (mascota, cita, recordatorio, vacuna…)</li>
+        <li>Certificados con escaneo; la vacuna "realizada" exige certificado</li>
+        <li>Paseos estilo Strava con mapa real (OpenStreetMap) y GPS del teléfono</li>
+        <li>Crecimiento (gráfico de peso, antes/después), eventos, tips, familia y notificaciones</li>
+        <li>Plan PRO con pago simulado y banner de publicidad de muestra</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Backend (API REST)</h3>
+      <table style="margin:0">
+        <thead><tr><th>Módulo</th><th class="num">Endpoints</th></tr></thead>
+        <tbody>
+          <tr><td>Autenticación: email, Google, Apple, renovación de sesión</td><td class="num">7</td></tr>
+          <tr><td>Usuarios (perfil)</td><td class="num">2</td></tr>
+          <tr><td>Mascotas, con acceso por dueño o miembro</td><td class="num">5</td></tr>
+          <tr><td>Alimentación</td><td class="num">4</td></tr>
+          <tr><td>Paseos</td><td class="num">4</td></tr>
+          <tr><td>Cobros in-app: Apple, Google y webhooks</td><td class="num">5</td></tr>
+        </tbody>
+        <tfoot><tr><td>Total</td><td class="num">27</td></tr></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <h2><span class="n">2.3</span>Calidad del código</h2>
+  <table>
+    <thead><tr><th style="width:36%">Verificación (11-09-2026)</th><th style="width:16%">Resultado</th><th>Comentario</th></tr></thead>
+    <tbody>
+      <tr><td><code>flutter analyze</code> (análisis estático)</td><td><span class="tag ok">0 problemas</span></td><td>Código limpio y consistente, con arquitectura por funcionalidad.</td></tr>
+      <tr><td><code>flutter test</code> (tests de la app)</td><td><span class="tag ok">48 / 48</span></td><td>Cubren desbordes de pantalla, navegación y scroll. No hay tests de lógica de datos, porque todavía no existe esa lógica.</td></tr>
+      <tr><td><code>tsc --noEmit</code> (compilación del backend)</td><td><span class="tag ok">Sin errores</span></td><td>Diseño sólido: sesiones con renovación, permisos por mascota y validación de datos.</td></tr>
+      <tr><td>Tests del backend</td><td><span class="tag crit">No hay</span></td><td>Se necesitan antes de producción, al menos para cuentas, permisos y cobros.</td></tr>
+      <tr><td>Integración continua (CI)</td><td><span class="tag high">No hay</span></td><td>Conviene correr el análisis y los tests automáticamente en cada cambio.</td></tr>
+    </tbody>
+  </table>
+
+  <h2><span class="n">2.4</span>Fase 1 contractual</h2>
+  <p>La propuesta (8 de junio al 12 de julio de 2026, $1.333.333 CLP) pedía 4 pantallas fieles al diseño, con datos de ejemplo. El código <b>cumple y supera</b> ese alcance. Según <code>docs/ESTADO_DEL_PROYECTO.md</code> (12 de julio), el cierre formal quedó pendiente:</p>
+  <ul>
+    <li>APK de pruebas para Android y link de TestFlight para iOS.</li>
+    <li>Aprobación de la matriz de 4 pantallas por parte del cliente, que libera el <b>Pago 2 ($1.333.333 CLP)</b>.</li>
+    <li><b>Ojo antes de generar ese APK:</b> con la configuración actual, una versión de producción de Android <b>no tendría acceso a internet</b> (el mapa de paseos se vería en blanco) y en iPhone la app <b>se cerraría</b> al abrir la cámara o iniciar un paseo. Se corrige en menos de un día (sección 4.1).</li>
+  </ul>
+</section>
+
+<!-- ======================= 3. ARQUITECTURA ======================= -->
+<section>
+  <h1 class="sec"><span class="n">3</span>Arquitectura y conexiones con Supabase</h1>
+  <p class="lead">Qué pieza habla con cuál, qué está funcionando hoy y qué falta conectar.</p>
+
+  <div class="diagram">
+    <svg viewBox="0 0 720 350" width="100%" font-family="Segoe UI, Arial, sans-serif" font-size="11">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#5f6b64"/></marker>
+      </defs>
+      <!-- App -->
+      <rect x="20" y="128" width="170" height="92" rx="10" fill="#E8F5E9" stroke="#43A047" stroke-width="2"/>
+      <text x="105" y="158" text-anchor="middle" font-weight="700" font-size="13" fill="#2E7D32">App Agenda Pet</text>
+      <text x="105" y="176" text-anchor="middle" fill="#1d2721">Flutter · Android · iOS</text>
+      <text x="105" y="193" text-anchor="middle" fill="#5f6b64" font-size="10">UI lista · datos aún de ejemplo</text>
+      <text x="105" y="208" text-anchor="middle" fill="#5f6b64" font-size="10">sesión solo en memoria</text>
+      <!-- API -->
+      <rect x="275" y="128" width="185" height="92" rx="10" fill="#FFF6E5" stroke="#F59E0B" stroke-width="2"/>
+      <text x="367" y="158" text-anchor="middle" font-weight="700" font-size="13" fill="#92580a">API Agenda Pet</text>
+      <text x="367" y="176" text-anchor="middle" fill="#1d2721">Node.js · Express · Prisma</text>
+      <text x="367" y="193" text-anchor="middle" fill="#5f6b64" font-size="10">corre solo en el PC local</text>
+      <text x="367" y="208" text-anchor="middle" fill="#5f6b64" font-size="10">hosting por definir</text>
+      <!-- Postgres -->
+      <rect x="545" y="40" width="160" height="80" rx="10" fill="#E8F5E9" stroke="#43A047" stroke-width="2"/>
+      <text x="625" y="66" text-anchor="middle" font-weight="700" font-size="12.5" fill="#2E7D32">Supabase Postgres</text>
+      <text x="625" y="84" text-anchor="middle" fill="#1d2721" font-size="10.5">Supavisor pooler · us-west-2</text>
+      <text x="625" y="100" text-anchor="middle" fill="#5f6b64" font-size="10">16 tablas · conectado</text>
+      <!-- Storage -->
+      <rect x="545" y="150" width="160" height="62" rx="10" fill="#fafbfa" stroke="#9aa5a0" stroke-width="1.8" stroke-dasharray="5 4"/>
+      <text x="625" y="175" text-anchor="middle" font-weight="700" font-size="12" fill="#5f6b64">Supabase Storage</text>
+      <text x="625" y="193" text-anchor="middle" fill="#5f6b64" font-size="10">fotos y certificados · pendiente</text>
+      <!-- Stores -->
+      <rect x="275" y="270" width="185" height="66" rx="10" fill="#FFF6E5" stroke="#F59E0B" stroke-width="2"/>
+      <text x="367" y="294" text-anchor="middle" font-weight="700" font-size="12" fill="#92580a">Apple / Google</text>
+      <text x="367" y="311" text-anchor="middle" fill="#1d2721" font-size="10.5">login · compras in-app · webhooks</text>
+      <text x="367" y="326" text-anchor="middle" fill="#5f6b64" font-size="10">código listo · sin configurar</text>
+      <!-- Push -->
+      <rect x="20" y="22" width="170" height="58" rx="10" fill="#fafbfa" stroke="#9aa5a0" stroke-width="1.8" stroke-dasharray="5 4"/>
+      <text x="105" y="46" text-anchor="middle" font-weight="700" font-size="12" fill="#5f6b64">Notificaciones</text>
+      <text x="105" y="63" text-anchor="middle" fill="#5f6b64" font-size="10">FCM / APNs · pendiente</text>
+      <!-- Mapas -->
+      <rect x="20" y="276" width="170" height="58" rx="10" fill="#FFF6E5" stroke="#F59E0B" stroke-width="2"/>
+      <text x="105" y="300" text-anchor="middle" font-weight="700" font-size="12" fill="#92580a">Mapas (tiles)</text>
+      <text x="105" y="317" text-anchor="middle" fill="#5f6b64" font-size="10">OpenStreetMap · por cambiar</text>
+      <!-- Arrows -->
+      <line x1="190" y1="160" x2="273" y2="160" stroke="#5f6b64" stroke-width="1.6" marker-end="url(#ah)"/>
+      <text x="231" y="152" text-anchor="middle" fill="#1d2721" font-size="9.5">HTTPS + token</text>
+      <line x1="460" y1="150" x2="543" y2="92" stroke="#5f6b64" stroke-width="1.6" marker-end="url(#ah)"/>
+      <text x="486" y="112" text-anchor="middle" fill="#1d2721" font-size="9.5">SSL :5432</text>
+      <line x1="460" y1="182" x2="543" y2="182" stroke="#9aa5a0" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#ah)"/>
+      <text x="501" y="175" text-anchor="middle" fill="#5f6b64" font-size="9.5">URL firmada</text>
+      <line x1="367" y1="268" x2="367" y2="222" stroke="#5f6b64" stroke-width="1.6" marker-end="url(#ah)"/>
+      <text x="374" y="250" fill="#1d2721" font-size="9.5">verificación y avisos</text>
+      <line x1="170" y1="220" x2="273" y2="290" stroke="#5f6b64" stroke-width="1.6" marker-end="url(#ah)"/>
+      <text x="118" y="250" fill="#1d2721" font-size="9.5">compra nativa</text>
+      <line x1="105" y1="222" x2="105" y2="274" stroke="#5f6b64" stroke-width="1.6" marker-end="url(#ah)"/>
+      <line x1="300" y1="126" x2="192" y2="60" stroke="#9aa5a0" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#ah)"/>
+      <text x="262" y="84" fill="#5f6b64" font-size="9.5">envío de avisos</text>
+      <line x1="105" y1="82" x2="105" y2="126" stroke="#9aa5a0" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#ah)"/>
+    </svg>
+    <div class="legend"><span class="l-ok">Funcionando</span><span class="l-cfg">Código listo o provisorio, falta configurar o cambiar</span><span class="l-pend">Por construir</span></div>
+  </div>
+
+  <h2><span class="n">3.1</span>Conexión actual con Supabase</h2>
+  <p>Hoy Supabase se usa <b>solo como base de datos PostgreSQL</b>. La app nunca se conecta directo a Supabase: todo pasa por la API, que es la única con credenciales. La conexión se probó de punta a punta el 13 de agosto de 2026 (registro, sesión y mascotas respondieron correctamente).</p>
+  <table>
+    <thead><tr><th style="width:30%">Parámetro</th><th>Valor actual</th></tr></thead>
+    <tbody>
+      <tr><td>Proyecto Supabase</td><td><code>duqbrs…fuopq</code> (región <b>us-west-2</b>, Oregón, EE.UU.)</td></tr>
+      <tr><td>Host de conexión</td><td><code>aws-0-us-west-2.pooler.supabase.com</code>, que es el <i>pooler</i> Supavisor</td></tr>
+      <tr><td>Puerto / modo</td><td><code>5432</code>, modo <b>sesión</b></td></tr>
+      <tr><td>Usuario</td><td><code>postgres.&lt;ref-del-proyecto&gt;</code></td></tr>
+      <tr><td>Seguridad</td><td><code>?sslmode=require</code>. La contraseña está codificada en la URL (un "!" se escribe <code>%21</code>)</td></tr>
+      <tr><td>Dónde vive la credencial</td><td><code>BACKEND/.env</code>, variable <code>DATABASE_URL</code>, excluida de git</td></tr>
+      <tr><td>Cómo se crean las tablas</td><td><code>npx prisma db push</code>, porque <code>prisma migrate dev</code> falla con la base espejo que exige Supabase</td></tr>
+      <tr><td>Datos iniciales</td><td><code>npx prisma db seed</code> (carga 4 tips)</td></tr>
+    </tbody>
+  </table>
+  <div class="callout info"><span class="t">¿Por qué el pooler y no la conexión directa?</span>La dirección directa <code>db.&lt;ref&gt;.supabase.co</code> solo funciona por IPv6, y el equipo de desarrollo no tiene salida IPv6. El pooler Supavisor funciona por IPv4. Muchos servidores de hosting tampoco tienen IPv6, así que en producción también se usará el pooler o se contratará una IPv4 dedicada.</div>
+
+  <h3>Variables de entorno del backend</h3>
+  <p class="small" style="color:var(--ink)">Definidas hoy en <code>BACKEND/.env</code> (sin mostrar valores): <code>NODE_ENV</code>, <code>PORT</code>, <code>CORS_ORIGINS</code>, <code>DATABASE_URL</code>, <code>JWT_ACCESS_SECRET</code>, <code>JWT_REFRESH_SECRET</code>, <code>JWT_ACCESS_TTL</code>, <code>JWT_REFRESH_TTL</code>, <code>GOOGLE_CLIENT_IDS</code>, <code>APPLE_CLIENT_IDS</code>, las variables de Apple (<code>APPLE_IAP_ENABLED</code>, <code>APPLE_BUNDLE_ID</code>, <code>APPLE_ISSUER_ID</code>, <code>APPLE_KEY_ID</code>, <code>APPLE_PRIVATE_KEY_PATH</code>, <code>APPLE_ROOT_CERTS_DIR</code>, <code>APPLE_APP_APPLE_ID</code>, <code>APPLE_ENVIRONMENT</code>) y las de Google Play (<code>GOOGLE_PLAY_ENABLED</code>, <code>GOOGLE_PLAY_PACKAGE_NAME</code>, <code>GOOGLE_SERVICE_ACCOUNT_PATH</code>, <code>GOOGLE_RTDN_VERIFICATION_TOKEN</code>).</p>
+  <div class="callout warn"><span class="t">Antes de producción</span>Los secretos de sesión (<code>JWT_*_SECRET</code>) todavía tienen el valor de ejemplo "change-me…". En el servidor de producción hay que generar valores aleatorios de 32 bytes y definir <code>NODE_ENV=production</code>. Si no, la API acepta compras sin verificar (ver 4.4).</div>
+
+  <h2><span class="n">3.2</span>Recomendaciones para producción</h2>
+  <table>
+    <thead><tr><th style="width:4%">#</th><th style="width:36%">Recomendación</th><th>Por qué</th><th style="width:10%">Prioridad</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><b>Crear el proyecto de producción en São Paulo</b> (<code>sa-east-1</code>)</td><td>Supabase no tiene región en Chile. Desde Santiago, São Paulo responde en ~46 ms y Oregón (la región actual) en ~167 ms. La región no se puede cambiar: se crea un proyecto nuevo y se aplican las migraciones sobre él.</td><td><span class="tag crit">Alta</span></td></tr>
+      <tr><td>2</td><td><b>Poner la API en la misma región</b></td><td>Cada consulta de la API a la base de datos paga ese viaje. Opciones con Sudamérica: Fly.io (São Paulo) o Google Cloud Run (Santiago y São Paulo). Render, Railway, Koyeb y DigitalOcean no tienen región en Sudamérica.</td><td><span class="tag crit">Alta</span></td></tr>
+      <tr><td>3</td><td><b>Desactivar la Data API de Supabase</b> (o sacar <code>public</code> de los esquemas expuestos)</td><td>La app no usa las librerías de Supabase, todo pasa por la API propia. Una tabla expuesta sin RLS se puede leer y escribir con la clave pública del proyecto, y el proyecto actual se creó antes del cambio de política de Supabase del 30-05-2026.</td><td><span class="tag crit">Alta</span></td></tr>
+      <tr><td>4</td><td><b>Pasar de <code>db push</code> a migraciones versionadas</b></td><td><code>migrate dev</code> contra un PostgreSQL local, un <i>baseline</i> <code>0_init</code> de la base actual y <code>migrate deploy</code> en CI. Así queda historial y la base de producción se cambia sin perder datos.</td><td><span class="tag high">Media</span></td></tr>
+      <tr><td>5</td><td><b>Mantener el modo sesión (5432) y agregar <code>DIRECT_URL</code></b></td><td>Es lo correcto para un servidor Node siempre encendido, con un <code>connection_limit</code> bajo (3–5 por instancia). El modo transacción (6543, <code>?pgbouncer=true</code>) solo sirve si pasan a serverless.</td><td><span class="tag high">Media</span></td></tr>
+      <tr><td>6</td><td><b>Separar desarrollo y producción</b></td><td>Desarrollo y staging en una organización Free (se pausa tras 1 semana sin uso). Producción en Pro, que no se pausa y guarda un backup diario por 7 días.</td><td><span class="tag high">Media</span></td></tr>
+      <tr><td>7</td><td><b>Fotos y certificados en Supabase Storage</b></td><td>La API genera URLs firmadas y la app sube el archivo directo. Pro incluye 100 GB. Alternativa sin cobro por tráfico de salida: Cloudflare R2.</td><td><span class="tag high">Media</span></td></tr>
+      <tr><td>8</td><td><b>Checklist de producción de Supabase</b></td><td>Forzar SSL, restricciones de red, MFA obligatorio en la organización y restauración a un punto en el tiempo (PITR) cuando la base supere ~4 GB.</td><td><span class="tag med">Baja</span></td></tr>
+    </tbody>
+  </table>
+  <h3>Configuración recomendada de Prisma 5 con Supabase</h3>
+<pre class="code">datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")  // tráfico de la API → pooler modo sesión :5432 + ?connection_limit=5
+  directUrl = env("DIRECT_URL")    // comandos migrate → misma cadena en modo sesión
+}</pre>
+  <p class="small">Flujo de migraciones: en desarrollo, <code>npx prisma migrate dev</code> contra un PostgreSQL local. En producción, <code>npx prisma migrate deploy</code> desde CI; no usa base espejo, no borra datos y no pide confirmaciones.</p>
+</section>
+
+<!-- ======================= 4. FALTANTES ======================= -->
+<section>
+  <h1 class="sec"><span class="n">4</span>Qué falta para publicar</h1>
+  <p class="lead">Ordenado por impacto. Lo de la sección 4.1 provoca rechazo en las tiendas o cierres de la app; sin eso no se puede publicar.</p>
+
+  <h2><span class="n">4.1</span>Bloqueos de tienda</h2>
+  <table>
+    <thead><tr><th style="width:4%">#</th><th style="width:30%">Problema</th><th>Impacto y solución</th><th style="width:11%">Esfuerzo</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><b>Faltan permisos del sistema</b><br><span class="small">AndroidManifest.xml · Info.plist</span></td><td>Android no declara internet ni ubicación: la versión final queda sin red. iOS no tiene los textos para cámara, fotos y ubicación, y <b>cierra la app</b> al pedirlos. Hay que agregar los permisos y sus textos en español.</td><td><span class="tag ok">&lt; 1 día</span></td></tr>
+      <tr><td>2</td><td><b>Pago PRO con tarjeta</b><br><span class="small">checkout_screen.dart</span></td><td>Apple y Google exigen cobrar suscripciones digitales con su sistema de compras dentro de la app, así que ese formulario de tarjeta no puede salir a la tienda. <b>En la v1.0 se oculta el acceso al PRO</b>; en la v1.1 se reemplaza por el paquete <code>in_app_purchase</code>, que el backend ya sabe validar.</td><td><span class="tag ok">v1.0: 1 hora</span><br><span class="tag high">v1.1: 1–2 sem.</span></td></tr>
+      <tr><td>3</td><td><b>No se puede borrar la cuenta</b></td><td>Obligatorio en ambas tiendas si la app permite crear cuentas. Falta el endpoint, el botón en Ajustes y una página web para pedir la eliminación.</td><td><span class="tag ok">2–3 días</span></td></tr>
+      <tr><td>4</td><td><b>Firma de desarrollo</b><br><span class="small">build.gradle.kts:32</span></td><td>Google Play no acepta apps firmadas con la llave de desarrollo. Hay que crear la llave de producción, guardarla en un lugar seguro y activar Play App Signing.</td><td><span class="tag ok">&lt; 1 día</span></td></tr>
+      <tr><td>5</td><td><b>Tres identificadores de app distintos</b></td><td>Android, iOS y el backend usan identificadores diferentes. Hay que unificar en uno solo antes de crear las fichas en las tiendas, porque después no se puede cambiar.</td><td><span class="tag ok">&lt; 1 día</span></td></tr>
+      <tr><td>6</td><td><b>Login social simulado</b></td><td>La app envía un token falso (<code>'mock-id-token'</code>). Hay que integrar <code>google_sign_in</code> y <code>sign_in_with_apple</code>. Si se ofrece Google, Apple exige ofrecer también su propio login.</td><td><span class="tag high">3–5 días</span></td></tr>
+      <tr><td>7</td><td><b>Identidad y ficha de tienda</b></td><td>Ícono propio (hoy es el de Flutter), pantalla de carga, nombre visible ("agenda_pet" en Android), capturas, descripción, política de privacidad publicada en una URL y formularios de privacidad de datos de ambas tiendas.</td><td><span class="tag high">3–5 días</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2><span class="n">4.2</span>Conectar la app con el backend (el grueso del trabajo)</h2>
+  <ul>
+    <li><b>Unas 25 pantallas y 10 formularios</b> deben leer y guardar en la API, con estados de carga, error, vacío y reintento.</li>
+    <li><b>La sesión no se guarda:</b> los tokens viven en memoria, así que cerrar la app cierra la sesión. Hay que guardarlos cifrados (<code>flutter_secure_storage</code>).</li>
+    <li><b>Las pantallas no están protegidas:</b> hoy se puede entrar al inicio sin haber iniciado sesión. Falta que el sistema de rutas exija sesión.</li>
+    <li><b>El plan PRO y las preferencias se pierden:</b> el PRO es un valor local que se pierde al reiniciar. Debe leerse del backend.</li>
+    <li><b>Los recordatorios no avisan.</b> Para el MVP recomendamos <b>notificaciones locales</b> programadas en el teléfono (<code>flutter_local_notifications</code>), que no necesitan servidor.</li>
+    <li><b>Fotos y certificados:</b> hoy se eligen pero no se suben. Deben guardarse en Supabase Storage.</li>
+  </ul>
+
+  <h2><span class="n">4.3</span>Backend</h2>
+  <table>
+    <thead><tr><th style="width:36%">Falta</th><th>Detalle</th></tr></thead>
+    <tbody>
+      <tr><td>Endpoints de 7 módulos</td><td>Vacunas, medicinas, servicios y citas; recordatorios; crecimiento; eventos; tips; notificaciones; familia e invitaciones. Las tablas ya existen, así que es replicar el patrón de los módulos hechos.</td></tr>
+      <tr><td>Tabla de certificados</td><td>No existe en el esquema. Hay que crearla y vincularla a vacunas y a archivos.</td></tr>
+      <tr><td>Subida de archivos</td><td>URLs firmadas de Supabase Storage, con validación de tamaño y tipo.</td></tr>
+      <tr><td>Borrar cuenta y datos</td><td>Requisito de las tiendas y de la ley de datos personales.</td></tr>
+      <tr><td>Servidor y entornos</td><td>Poner la API en un servidor con HTTPS y separar desarrollo y producción. Hoy no hay Dockerfile ni configuración de despliegue.</td></tr>
+      <tr><td>Migraciones reales</td><td>Pasar de <code>db push</code> a migraciones versionadas para cambiar la base de producción sin perder datos.</td></tr>
+      <tr><td>Tests y límite de intentos</td><td>Tests de cuentas, permisos y cobros, y un límite de intentos en el login para frenar ataques de fuerza bruta.</td></tr>
+    </tbody>
+  </table>
+
+  <h2><span class="n">4.4</span>Seguridad (corregir antes de producción)</h2>
+  <table>
+    <thead><tr><th style="width:9%">Nivel</th><th>Riesgo</th><th style="width:27%">Dónde</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag crit">Crítico</span></td><td>Si falta el secreto de sesión en el servidor, se usa <code style="white-space:nowrap">"dev-access-secret"</code> y cualquiera puede falsificar sesiones.</td><td><code>src/config/env.ts:35</code></td></tr>
+      <tr><td><span class="tag crit">Crítico</span></td><td>Si el servidor no corre en modo producción, las compras se aceptan <b>sin verificar</b>, lo que da PRO gratis.</td><td><code>billing/providers/google.ts:37</code> y el equivalente de Apple</td></tr>
+      <tr><td><span class="tag high">Alto</span></td><td>Un mismo comprobante de compra se puede reclamar desde varias cuentas.</td><td><code>billing/billing.service.ts:25</code></td></tr>
+      <tr><td><span class="tag high">Alto</span></td><td>El login con Google une cuentas por correo sin comprobar que el correo esté verificado, lo que permite tomar una cuenta ajena.</td><td><code>auth/auth.service.ts:113</code></td></tr>
+      <tr><td><span class="tag med">Medio</span></td><td>La app puede atribuir un paseo a cualquier usuario.</td><td><code>walks/walks.service.ts:11</code></td></tr>
+      <tr><td><span class="tag med">Medio</span></td><td>No hay límite de intentos de login ni detección de reuso de sesiones antiguas.</td><td><code>auth/</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2><span class="n">4.5</span>Lo que queda fuera de la v1.0</h2>
+  <p>Sus pantallas ya están construidas, pero conectarlas no cabe en el plazo de octubre. En la v1.0 se ocultan del menú y vuelven cuando funcionen con datos reales (ver 5.1).</p>
+  <ul>
+    <li><b>Certificados, crecimiento y eventos:</b> son los más cercanos a estar listos, porque solo falta conectarlos. Entran en la <b>v1.1</b>, junto con el PRO.</li>
+    <li><b>Paseos con GPS completo:</b> hoy solo funcionan con la pantalla encendida y se cortan al bloquear el teléfono. Hacerlo bien requiere ubicación en segundo plano, con declaraciones y video de justificación para Google Play. La <b>ubicación en vivo compartida</b> además necesita comunicación en tiempo real.</li>
+    <li><b>Familia compartida</b> con invitaciones y roles reales.</li>
+    <li><b>Notificaciones enviadas desde el servidor</b>, por ejemplo "tu familiar registró una vacuna". En la v1.0 los recordatorios avisan igual, pero programados en el propio teléfono.</li>
+    <li><b>Publicidad AdMob</b>, <b>video mensual automático</b> y <b>tips con IA</b>.</li>
+  </ul>
+</section>
+
+<!-- ======================= 5. PLAN ======================= -->
+<section>
+  <h1 class="sec"><span class="n">5</span>Plan de lanzamiento y fechas</h1>
+  <p class="lead">Meta acordada: <b>entregar al cliente en septiembre y publicar en tiendas a fines de octubre</b>, con cuentas y nube desde el primer día. Para que quepa en 7 semanas hay que recortar módulos; lo que queda fuera se oculta, no se deja a medias.</p>
+
+  <h2><span class="n">5.1</span>Alcance por versión</h2>
+  <table>
+    <thead><tr><th style="width:16%">Versión</th><th>Incluye</th><th style="width:20%">Cuándo</th></tr></thead>
+    <tbody>
+      <tr><td><b>Entrega Fase 1</b><br><span class="tag gray">Datos de ejemplo</span></td><td>La app actual, con los permisos, la firma, el ícono y el nombre corregidos: APK de Android y TestFlight de iOS para el cliente. Cierra la Fase 1 y libera el Pago 2.</td><td><b>Semana del 14 de septiembre</b></td></tr>
+      <tr><td><b>v1.0</b><br><span class="tag ok">Pública, gratis</span></td><td>Cuentas reales (email, Google y Apple) con sesión guardada y borrado de cuenta. Mascotas con foto, agenda, recordatorios que avisan en el teléfono, vacunas, medicinas, servicios, citas, alimentación y tips. Todo guardado en la nube y sincronizado.</td><td><b>Fines de octubre</b> (7 semanas)</td></tr>
+      <tr><td><b>v1.1</b><br><span class="tag high">Monetización</span></td><td>Suscripción PRO con compra dentro de la app, publicidad AdMob, más crecimiento, eventos y certificados.</td><td>Diciembre de 2026</td></tr>
+      <tr><td><b>v1.2+</b></td><td>Paseos con GPS en segundo plano y ubicación en vivo, familia compartida con invitaciones, notificaciones desde el servidor, video mensual y tips con IA.</td><td>Primer trimestre de 2027</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn"><span class="t">Lo que sale de la v1.0 hay que ocultarlo</span>Paseos, familia, certificados, crecimiento, eventos y PRO ya tienen pantallas hechas, pero con datos de ejemplo. Las tiendas rechazan pantallas de demostración o incompletas (norma 2.1 de Apple), así que en la v1.0 esos accesos se <b>quitan del menú</b> y vuelven cuando funcionen de verdad. El código se mantiene, solo se esconde la entrada.</div>
+
+  <h2><span class="n">5.2</span>Cronograma hasta la publicación</h2>
+  <p class="small">Supuesto: <b>2 personas a tiempo completo</b> desde el lunes 14 de septiembre. B = backend · A = app · T = tiendas y administración. Ojo con los feriados: la S1 pierde el 18 y 19 de septiembre, y la S5 el lunes 12 de octubre.</p>
+  <table class="gantt">
+    <thead><tr><th style="width:40%">Trabajo</th><th class="c">S1<br>14/9</th><th class="c">S2<br>21/9</th><th class="c">S3<br>28/9</th><th class="c">S4<br>5/10</th><th class="c">S5<br>12/10</th><th class="c">S6<br>19/10</th><th class="c">S7<br>26/10</th></tr></thead>
+    <tbody>
+      <tr><td>T · Cuentas de desarrollador, <span class="nb">D-U-N-S</span>, <b>inicio de la prueba cerrada de Play</b></td><td class="on"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>A · Permisos, firma, ícono, nombre, identificador · <b>entrega de Fase 1</b></td><td class="on2"></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>B · Supabase en São Paulo, servidor de la API, seguridad crítica</td><td class="on"></td><td class="on"></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>B · Cuidado y recordatorios, fotos en Storage, borrar cuenta, migraciones</td><td></td><td class="on"></td><td class="on"></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>A · Sesión guardada, rutas protegidas, capa de datos, mascotas e inicio</td><td></td><td class="on2"></td><td class="on2"></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td>A · Agenda, recordatorios con aviso, fotos de mascota</td><td></td><td></td><td class="on2"></td><td class="on2"></td><td></td><td></td><td></td></tr>
+      <tr><td>A · Vacunas, medicinas, servicios, citas, alimentación, login real</td><td></td><td></td><td></td><td class="on2"></td><td class="on2"></td><td></td><td></td></tr>
+      <tr><td>T · QA en teléfonos, ficha de tienda, capturas, política de privacidad</td><td></td><td></td><td></td><td></td><td class="qa"></td><td class="qa"></td><td></td></tr>
+      <tr><td>T · Envío a revisión (iOS y Android)</td><td></td><td></td><td></td><td></td><td></td><td class="qa"></td><td></td></tr>
+      <tr><td>T · Correcciones de revisión y <b>publicación</b></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="rel">▶</td></tr>
+    </tbody>
+  </table>
+  <p class="small"><b>Hitos que no se mueven:</b> la prueba cerrada de Play empieza la S1 · el alcance se congela el <b>viernes 16 de octubre</b> · el envío a revisión sale en la S6, no en la última semana, para dejar margen a un rechazo.</p>
+
+  <h2><span class="n">5.3</span>Fechas estimadas</h2>
+  <table>
+    <thead><tr><th>Hito</th><th style="width:34%">Fecha estimada</th></tr></thead>
+    <tbody>
+      <tr><td>Entrega al cliente: APK + TestFlight con la versión actual</td><td><b>Semana del 14 de septiembre</b></td></tr>
+      <tr><td>v1.0 pública en App Store <span class="small">(revisión de Apple: 24 a 48 horas)</span></td><td><b>Última semana de octubre</b></td></tr>
+      <tr><td>v1.0 pública en Google Play <span class="small">(la primera publicación puede tardar hasta 7 días en revisión)</span></td><td><b>Última semana de octubre</b>, o primeros días de noviembre</td></tr>
+      <tr><td>Si el equipo trabaja a medio tiempo</td><td>Diciembre de 2026</td></tr>
+      <tr><td>v1.1 con PRO, crecimiento, eventos y certificados</td><td>Diciembre de 2026 <span class="small">(evitar la semana de Navidad)</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn"><span class="t">Riesgos de esta fecha</span>
+    <ul>
+      <li><b>Dedicación:</b> el plan supone a ambos a tiempo completo. A medio tiempo no cabe en octubre.</li>
+      <li><b>Prueba cerrada de Google Play:</b> con cuenta personal son 12 testers durante 14 días seguidos antes de poder publicar. Si empieza la semana del 14 de septiembre, el plazo se cumple a fines de septiembre y no estorba; si se atrasa una semana, atrasa la publicación de Android.</li>
+      <li><b><span class="nb">D-U-N-S</span> y cuentas de empresa:</b> Google advierte hasta 30 días. No frenan la v1.0 si se publica con cuentas personales, pero sí condicionan cómo se cobrará después (sección 6.2).</li>
+      <li><b>Primer rechazo de tienda:</b> es común por detalles de privacidad o textos de permisos. Por eso el envío va en la semana 6.</li>
+      <li><b>Feriados:</b> 18 y 19 de septiembre, y lunes 12 de octubre.</li>
+      <li><b>Ley 21.719:</b> rige desde el 1-12-2026 y la app ya estará publicada, así que debe cumplirla desde el lanzamiento.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ======================= 6. PAGOS CHILE ======================= -->
+<section>
+  <h1 class="sec"><span class="n">6</span>Cómo recibir pagos en Chile (App Store y Google Play)</h1>
+  <p class="lead">Proceso para que Agenda Pet cobre la suscripción PRO y la publicidad desde Chile, armado con fuentes oficiales de Apple, Google, SII, Aduanas y el Registro de Empresas, consultadas el 11-09-2026.</p>
+
+  <div class="callout warn"><span class="t">Importante</span>Esta sección es una investigación, no una asesoría tributaria ni legal. Las partes de impuestos (6.6) y de facturación deben validarlas un <b>contador</b> antes de empezar a cobrar. Los puntos que no se pudieron confirmar se indican como tales.</div>
+
+  <h2><span class="n">6.1</span>Cómo llega el dinero</h2>
+  <div class="flow">
+    <div class="box"><b>1 · Usuario</b>Paga el PRO dentro de la app con su cuenta de Apple o Google (precio con IVA incluido)</div>
+    <div class="arr">›</div>
+    <div class="box"><b>2 · Tienda</b>Cobra, descuenta su comisión (15%) y, en el caso de Apple, el IVA chileno</div>
+    <div class="arr">›</div>
+    <div class="box"><b>3 · Pago mensual</b>Apple: hasta 45 días tras el cierre del mes (mín. USD 40)<br>Google: desde el día 15, en USD (mín. US$100)</div>
+    <div class="arr">›</div>
+    <div class="box"><b>4 · Banco</b>Cuenta de la empresa en CLP o USD (Google paga a Chile en USD)</div>
+    <div class="arr">›</div>
+    <div class="box"><b>5 · SII</b>Factura, F29 mensual, IVA de las ventas de Google e impuesto a la renta</div>
+  </div>
+  <p>La app <b>no puede cobrar con tarjeta ni con pasarelas chilenas</b> (Webpay, Mercado Pago, Flow) para desbloquear funciones digitales: Apple y Google exigen su propio sistema de compras. El backend de Agenda Pet ya valida esas compras y recibe los avisos de renovación y cancelación de ambas tiendas.</p>
+
+  <h2><span class="n">6.2</span>Persona natural o empresa</h2>
+  <table>
+    <thead><tr><th style="width:18%"></th><th style="width:41%">Persona natural</th><th>SpA (recomendado para dos socios)</th></tr></thead>
+    <tbody>
+      <tr><td><b>A favor</b></td><td>Más rápido: no pide <span class="nb">D-U-N-S</span>, ni sitio web ni correo corporativo.</td><td>El vendedor que aparece en las tiendas es la empresa. No aplica la prueba cerrada de 12 testers de Google. Ambos socios tienen participación y responsabilidad limitada. Impuesto de primera categoría de 12,5% en 2025–2027 (Pro Pyme).</td></tr>
+      <tr><td><b>En contra</b></td><td>Se publica el nombre legal y, en Google, el <b>domicilio completo</b> si la app cobra. Aplica la prueba cerrada de <b>12 testers por 14 días</b>. Todo el ingreso tributa en una sola persona (Global Complementario, hasta 40%). Una cuenta personal que ya cobra no se puede traspasar a una empresa.</td><td>Hay que esperar el <span class="nb">D-U-N-S</span>. Se necesita dominio, sitio web y correo corporativo. Contabilidad y declaración F29 mensual (patente municipal no investigada).</td></tr>
+    </tbody>
+  </table>
+  <div class="callout ok"><span class="t">Recomendación, con la fecha de octubre encima</span>
+    <p>La v1.0 sale <b>gratis</b>, así que no necesita la empresa: basta una cuenta <b>individual</b> de Apple (se activa en 1 o 2 días, sin <span class="nb">D-U-N-S</span>) y una personal de Google. La SpA se necesita para <b>cobrar</b> el PRO en diciembre.</p>
+    <p>Por eso conviene hacer las dos cosas en paralelo: publicar en octubre con las cuentas personales y, al mismo tiempo, constituir la SpA y pedir el <span class="nb">D-U-N-S</span> ahora. Si las cuentas de empresa alcanzan a estar listas antes del envío a revisión (19 de octubre), se publica directamente con ellas y se evita traspasar las apps después. La EIRL no sirve porque admite un solo titular.</p>
+    <p class="small" style="margin-bottom:0"><b>Ojo con el traspaso:</b> mover una app de una cuenta personal a una de empresa es posible pero engorroso, y una cuenta personal de Google que <b>ya cobró</b> no se puede traspasar. Por eso el PRO no debe activarse nunca en una cuenta personal.</p>
+  </div>
+
+  <h2><span class="n">6.3</span>Paso a paso</h2>
+  <ol class="steps">
+    <li><span class="time">~1 semana</span><b class="h">Contratar un contador</b>Define el régimen tributario, el tratamiento del IVA y la exportación, y cómo facturar a Apple y Google.</li>
+    <li><span class="time">1 día · RUT inmediato</span><b class="h">Constituir la SpA en "Tu Empresa en un Día"</b>Gratis en registrodeempresasysociedades.cl, con ClaveÚnica. Cada socio firma con Firma Electrónica Avanzada en línea (~$536–$950 por firma). Si todos firman con FEA, la empresa queda constituida y con RUT al instante.</li>
+    <li><span class="time">mismo día – 5 días hábiles</span><b class="h">Inicio de actividades en el SII</b>Código de actividad a definir con el contador (por ejemplo, 582000 "Edición de programas informáticos" o 620100). Régimen Pro Pyme General o Transparente. Habilitar la facturación electrónica gratuita del SII.</li>
+    <li><span class="time">1–3 días</span><b class="h">Dominio, sitio web y correo corporativo</b>Apple exige a las organizaciones un sitio web público con dominio propio y un correo de ese dominio.</li>
+    <li><span class="time">5 + 2 días hábiles (Google: hasta 30 días)</span><b class="h">Número <span class="nb">D-U-N-S</span></b>Gratis si se pide con la herramienta de Apple. Lo necesitan ambas tiendas para cuentas de empresa.</li>
+    <li><span class="time">5–10 días hábiles</span><b class="h">Cuenta corriente de la empresa en CLP y en USD</b>Google paga a Chile en dólares por transferencia internacional. Bancos con cuenta en dólares para empresas: BancoEstado, Banco de Chile, Santander, Scotiabank, BCI y BICE. Alternativas digitales: Global66 y Wise Business.</li>
+    <li><span class="time">días – 2 semanas</span><b class="h">Apple Developer Program como organización (USD 99/año)</b>La inscribe una persona con poder para obligar a la empresa.</li>
+    <li><span class="time">días</span><b class="h">Google Play Console como organización (US$25)</b>Verificación de identidad: certificado de constitución o certificado tributario, más el carnet del representante legal.</li>
+    <li><span class="time">1 día + 15 días</span><b class="h">Configurar el cobro en Apple</b>Firmar el contrato de apps pagadas (Paid Apps Agreement), ingresar el banco, completar el formulario <span class="nb">W-8BEN-E</span>, declarar la condición de contribuyente de IVA en Chile e inscribirse en el <span class="nb">Small Business Program</span> (comisión 15%).</li>
+    <li><span class="time">~1 semana</span><b class="h">Configurar el cobro en Google</b>Perfil de pagos, cuenta bancaria verificada con un depósito de prueba (~72 horas), pregunta de contribuyente de IVA y tasa de impuesto, formulario <span class="nb">W-8BEN-E</span> y "Account Group" para acceder al 15%.</li>
+    <li><span class="time">hasta 35 días hábiles</span><b class="h">Calificación de Aduanas como exportación de servicios (si aplica)</b>El trámite es gratis. Solo se necesita si el contador concluye que los ingresos del extranjero son exportación y el servicio no está en la lista vigente.</li>
+    <li><span class="time">1–2 semanas</span><b class="h">Requisitos legales dentro de la app</b>Política de privacidad, términos, borrado de cuenta, formularios de privacidad de ambas tiendas, textos de la suscripción y consentimiento para usar la ubicación (6.7).</li>
+    <li><span class="time">recurrente</span><b class="h">Operación mensual</b>F29 mensual, facturas por cada pago recibido y declaración de renta anual (F22).</li>
+  </ol>
+  <p class="small">Estimación de la investigación: <b>de cero al primer pago recibido, unos 2 a 3 meses</b>. Por eso los trámites deben partir en paralelo al desarrollo, desde la semana 1.</p>
+
+  <h2><span class="n">6.4</span>Apple App Store: lo que hay que saber</h2>
+  <table>
+    <thead><tr><th style="width:26%">Tema</th><th>Detalle</th></tr></thead>
+    <tbody>
+      <tr><td>Cuenta de organización</td><td>Entidad legal que pueda firmar contratos, <span class="nb">D-U-N-S</span>, sitio web con dominio propio y correo de ese dominio. Apple no acepta nombres de fantasía ni marcas comerciales como titular.</td></tr>
+      <tr><td>Comisión</td><td>30% estándar. En suscripciones baja a 15% desde el segundo año de cada suscriptor. Con el <b><span class="nb">Small Business Program</span></b> (menos de USD 1M al año, incluidos desarrolladores nuevos) es <b>15% desde el primer día</b>. La rebaja se aplica 15 días después del cierre del mes fiscal en que se aprueba.</td></tr>
+      <tr><td>IVA de las ventas en Chile</td><td><b>Apple lo recauda y lo paga</b> (19%, desde 2020), actuando como agente a través de Apple Services LATAM LLC. Lo que recibe la empresa se calcula sobre el precio sin IVA.</td></tr>
+      <tr><td>IVA sobre la comisión</td><td>Si el desarrollador reside en Chile, Apple le cobra IVA sobre su comisión, salvo que acredite ser contribuyente de IVA.</td></tr>
+      <tr><td>Pago</td><td>Transferencia en la moneda de la cuenta bancaria (CLP o USD; la conversión la hace el banco de Apple), <b>hasta 45 días</b> después del cierre del mes fiscal. Mínimo USD 40; lo que no llega al mínimo se acumula para el mes siguiente.</td></tr>
+      <tr><td>Formulario de EE.UU.</td><td><span class="nb">W-8BEN-E</span> para empresas. El tratado tributario EE.UU.–Chile está vigente desde el 19-12-2023. Apple indica que las ventas de apps de desarrolladores fuera de EE.UU. normalmente no tienen retención.</td></tr>
+      <tr><td>Reglas de suscripción</td><td>La norma 3.1.2 exige describir claramente lo que el usuario obtiene al pagar, con precio y período visibles antes de comprar.</td></tr>
+    </tbody>
+  </table>
+
+  <h2><span class="n">6.5</span>Google Play: lo que hay que saber</h2>
+  <table>
+    <thead><tr><th style="width:26%">Tema</th><th>Detalle</th></tr></thead>
+    <tbody>
+      <tr><td>Chile habilitado</td><td>Sí, para desarrolladores y para comerciantes. El precio al usuario se fija en CLP, pero Google <b>paga a Chile en USD</b>.</td></tr>
+      <tr><td>Comisión</td><td>15% sobre el primer US$1M del año y <b>15% en todas las suscripciones</b>. Hay que crear un "Account Group" para acceder a esa tasa. Google anunció una baja a <b>10% en suscripciones</b> para Chile y el resto del mundo hacia el 30-09-2027.</td></tr>
+      <tr><td>IVA de las ventas en Chile</td><td><b>Google NO lo recauda para desarrolladores chilenos.</b> La empresa debe determinar, cobrar y pagar el IVA de las ventas a usuarios en Chile (se configura en el perfil de pagos y se declara en el F29).</td></tr>
+      <tr><td>IVA sobre la comisión</td><td>Si la empresa no está registrada como contribuyente de IVA, Google agrega 19% sobre su comisión. El perfil de pagos pregunta "¿Está registrado en Chile como contribuyente de IVA?".</td></tr>
+      <tr><td>Pago</td><td>Transferencia internacional en USD desde el <b>día 15</b> de cada mes por las ventas del mes anterior; tarda 5 a 7 días hábiles. Mínimo US$100. El banco puede cobrar entre US$0 y US$50 por transferencia.</td></tr>
+      <tr><td>Verificación</td><td>Cuenta bancaria verificada con un depósito de prueba. Datos de la empresa visibles en la ficha (nombre, dirección, correo y teléfono).</td></tr>
+      <tr><td>Cuentas personales</td><td>Las creadas después del 13-11-2023 deben hacer una prueba cerrada con <b>12 testers durante 14 días seguidos</b>, y luego pedir acceso a producción (revisión de hasta ~7 días).</td></tr>
+    </tbody>
+  </table>
+
+  <h3>AdMob (publicidad en el plan gratis)</h3>
+  <p>Umbral de pago US$100 (o CLP 60.000 en cuentas en pesos); al llegar a CLP 6.000 se verifica identidad y dirección. El pago se emite cerca del <b>día 21</b> de cada mes. También pide el formulario tributario de EE.UU.; sin él puede retener hasta 30% de lo generado en EE.UU.</p>
+
+  <h2><span class="n">6.6</span>Impuestos en Chile (validar con contador)</h2>
+  <table>
+    <thead><tr><th style="width:26%">Tema</th><th>Qué se sabe</th></tr></thead>
+    <tbody>
+      <tr><td>Impuesto a la renta (SpA)</td><td><b>Pro Pyme General:</b> la empresa paga primera categoría, <b>12,5% en los años comerciales 2025, 2026 y 2027</b> (Ley 21.755), 15% en 2028 y 25% después. Los socios pagan Global Complementario al retirar, con crédito por lo que pagó la empresa. <b>Pro Pyme Transparente:</b> la empresa no paga y cada socio tributa su parte del resultado del año.</td></tr>
+      <tr><td>IVA de ventas a usuarios en Chile</td><td>Por App Store: lo paga Apple. Por Google Play: <b>lo paga la empresa</b>.</td></tr>
+      <tr><td>Ventas a usuarios fuera de Chile</td><td>Pueden calificar como <b>exportación de servicios, exenta de IVA</b>. Para eso Aduanas debe calificar el servicio (Resolución Exenta 1931 de 2024) y se emite una <b>Factura de Exportación Electrónica (DTE 110)</b>, gratis en el sistema del SII. Además permite recuperar el IVA de las compras.</td></tr>
+      <tr><td>IVA sobre comisiones</td><td>Si la SpA es contribuyente de IVA y lo acredita, Apple y Google no le agregan IVA a la comisión. La SpA lo declara por "cambio de sujeto" (factura de compra y F29) y lo usa como crédito fiscal.</td></tr>
+      <tr><td>Divisas</td><td>Las operaciones de más de USD 10.000 que pasan por un banco chileno las informa el banco al Banco Central. El banco puede pedir acreditar el origen de los fondos.</td></tr>
+      <tr><td>Punto no resuelto</td><td>No se encontró un pronunciamiento del SII específico sobre ingresos de App Store o Google Play: a qué entidad de Apple o Google se factura, ni cómo se registran las ventas a chilenos que hace Apple. <b>Es la primera pregunta para el contador.</b></td></tr>
+    </tbody>
+  </table>
+
+  <h2><span class="n">6.7</span>Requisitos legales y de las tiendas</h2>
+  <ul>
+    <li><b>Privacidad:</b> política publicada en una URL y accesible dentro de la app, más los formularios de privacidad de Apple y de Google ("Data safety").</li>
+    <li><b>Ubicación:</b> hay que pedir consentimiento antes de usarla. La ubicación en segundo plano requiere una declaración y aprobación previa de Google.</li>
+    <li><b>Borrar cuenta:</b> dentro de la app (Apple 5.1.1(v); desactivarla no basta) y también mediante un enlace web (Google).</li>
+    <li><b>Ley 21.719 de datos personales:</b> entra en vigencia el <b>1-12-2026</b>. El 1-09-2026 el Gobierno ingresó un proyecto para postergarla al 1-12-2027, pero mientras no se apruebe rige la fecha original. Exige consentimiento libre, informado y específico, sin casillas premarcadas. Los usuarios tienen derecho de acceso, rectificación, supresión, oposición, portabilidad y bloqueo. La <b>geolocalización es una categoría especial</b> de datos. Las multas llegan a 20.000 UTM.</li>
+    <li><b>Consumidor:</b> en compras electrónicas hay 10 días para retractarse (Ley 19.496, art. 3 bis b), salvo que la exclusión se informe de forma destacada antes de comprar. La Ley Pro Consumidor prohíbe hacer más difícil cancelar que contratar, y el SERNAC fiscaliza las "barreras de salida" en suscripciones.</li>
+  </ul>
+</section>
+
+<!-- ======================= 7. COSTOS ======================= -->
+<section>
+  <h1 class="sec"><span class="n">7</span>Costos para levantar y operar el servicio</h1>
+  <p class="lead">Precios oficiales consultados el 11-09-2026, sin IVA. Tipo de cambio: dólar observado del 11-09-2026 = <b>CLP 937,17</b>; en las tablas se usa <b>1 USD = CLP 935</b>.</p>
+
+  <h2><span class="n">7.1</span>Costos únicos y anuales</h2>
+  <table>
+    <thead><tr><th>Ítem</th><th style="width:18%">Frecuencia</th><th class="num" style="width:13%">USD</th><th class="num" style="width:15%">CLP</th></tr></thead>
+    <tbody>
+      <tr><td>Apple Developer Program (necesario para publicar en iPhone)</td><td>Anual</td><td class="num">99</td><td class="num">92.565</td></tr>
+      <tr><td>Google Play Console (necesario para publicar en Android)</td><td>Pago único</td><td class="num">25</td><td class="num">23.375</td></tr>
+      <tr><td>Dominio <code>agendapet.cl</code> (NIC Chile, exento de IVA)</td><td>Anual</td><td class="num">~10,7</td><td class="num">9.990</td></tr>
+      <tr><td>Constitución de la SpA ("Tu Empresa en un Día")</td><td>Única vez</td><td class="num">0</td><td class="num">Gratis</td></tr>
+      <tr><td>Firma Electrónica Avanzada en línea (2 socios, ~$536–$950 cada una)</td><td>Única vez</td><td class="num">~1–2</td><td class="num">~1.100–1.900</td></tr>
+      <tr><td>Número <span class="nb">D-U-N-S</span> (pedido vía Apple) y calificación de Aduanas</td><td>Única vez</td><td class="num">0</td><td class="num">Gratis</td></tr>
+    </tbody>
+    <tfoot><tr><td colspan="2">Total primer año</td><td class="num">~137</td><td class="num">≈ 127.800</td></tr></tfoot>
+  </table>
+  <p class="small">No incluidos, porque no se investigaron: honorarios del contador, patente municipal y certificado digital para facturar. Conviene cotizarlos al contratar al contador.</p>
+
+  <h2><span class="n">7.2</span>Costos mensuales por etapa</h2>
+  <p class="small">Supuestos: API en Fly.io (São Paulo) junto a Supabase <code>sa-east-1</code>. Para los mapas se estiman ~40 tiles por uso del mapa y ~15 usos por usuario al mes; conviene medirlo en la beta.</p>
+  <table>
+    <thead><tr><th style="width:24%">Ítem</th><th>Beta / pruebas</th><th>Lanzamiento<br><span class="small">cientos a miles de usuarios</span></th><th>Crecimiento<br><span class="small">~10.000 usuarios</span></th></tr></thead>
+    <tbody>
+      <tr><td><b>Supabase</b> (base de datos + archivos)</td><td>Free, 2 proyectos: <b>0</b></td><td>Pro para producción; desarrollo en Free: <b>25</b></td><td>Pro, cómputo Small, staging y excedentes: <b>45</b></td></tr>
+      <tr><td><b>Servidor de la API</b> (Fly.io)</td><td>1 máquina de 512 MB: <b>~4</b></td><td>2 máquinas de 1 GB + tráfico: <b>~14</b></td><td>3 máquinas de 1 GB + tráfico: <b>~26</b></td></tr>
+      <tr><td>Fotos y certificados</td><td>Incluido: 0</td><td>Incluido (100 GB): 0</td><td>Incluido: 0</td></tr>
+      <tr><td>Mapas <span class="small">(solo si hay Paseos)</span></td><td>OpenStreetMap: 0</td><td>Stadia Starter: <b>20</b></td><td>Stadia Standard: <b>80</b> <span class="small">(0 con Google Maps SDK)</span></td></tr>
+      <tr><td>Notificaciones push (Firebase)</td><td>0</td><td>0</td><td>0</td></tr>
+      <tr><td>Correos transaccionales (Resend)</td><td>Free: 0</td><td>Free, 3.000/mes: 0</td><td>Pro: <b>20</b></td></tr>
+      <tr><td>Monitoreo de errores (Sentry + Crashlytics)</td><td>0</td><td>0</td><td>Sentry Team: <b>26</b></td></tr>
+      <tr><td>Correo corporativo <span class="small">(opcional)</span></td><td>Zoho Free: 0</td><td>Google Workspace, 2 usuarios: <b>~14</b></td><td>Google Workspace, 3 usuarios: <b>~21</b></td></tr>
+    </tbody>
+    <tfoot>
+      <tr><td>Total mensual USD</td><td>≈ 4</td><td>≈ 73</td><td>≈ 218</td></tr>
+      <tr><td>Total mensual CLP</td><td>≈ 3.740</td><td>≈ 68.165</td><td>≈ 203.695</td></tr>
+    </tfoot>
+  </table>
+  <div class="callout ok"><span class="t">Mínimo indispensable para lanzar el MVP</span>Si el MVP sale sin Paseos y con correo corporativo gratuito, lo único obligatorio al mes es <b>Supabase Pro (USD 25) + servidor de la API (~USD 14) ≈ USD 39/mes (≈ CLP 36.500)</b>. El plan Free de Supabase no sirve para producción: se pausa tras una semana sin actividad y no tiene backups.</div>
+
+  <h2><span class="n">7.3</span>Servicios recomendados</h2>
+  <table>
+    <thead><tr><th style="width:22%">Necesidad</th><th style="width:30%">Recomendación</th><th>Motivo</th></tr></thead>
+    <tbody>
+      <tr><td>Base de datos y archivos</td><td>Supabase Pro en São Paulo</td><td>Ya lo usan, la latencia es baja desde Chile, incluye backups diarios y 100 GB de archivos.</td></tr>
+      <tr><td>Servidor de la API</td><td>Fly.io (<code>gru</code>) o Google Cloud Run (Santiago)</td><td>Tienen región en Sudamérica. Fly es más barato para un servidor siempre encendido; Cloud Run tiene capa gratuita y región en Santiago.</td></tr>
+      <tr><td>Mapas</td><td>Google Maps SDK (gratis e ilimitado en móvil) o Stadia Maps</td><td>Los tiles de openstreetmap.org no dan garantías para uso comercial: el acceso puede bloquearse sin aviso y prohíben el uso intensivo.</td></tr>
+      <tr><td>Push</td><td>Firebase Cloud Messaging</td><td>Gratis. Para iPhone requiere una clave APNs de la cuenta Apple Developer.</td></tr>
+      <tr><td>Correos</td><td>Resend</td><td>3.000 correos al mes gratis, suficiente para recuperar contraseñas al inicio.</td></tr>
+      <tr><td>Errores</td><td>Firebase Crashlytics + Sentry Developer</td><td>Ambos gratis en su plan de entrada.</td></tr>
+    </tbody>
+  </table>
+  <p class="small">Los servicios digitales cobrados por empresas extranjeras pueden incluir 19% de IVA (Ley 21.210). Cómo se trata si Agenda Pet es contribuyente de IVA hay que confirmarlo con un contador.</p>
+
+  <h2><span class="n">7.4</span>Cuánto deja cada suscripción y punto de equilibrio</h2>
+  <p>Ejemplo con los precios que hoy muestra la app: <b>PRO $3.990 al mes</b> o <b>$39.900 al año</b>, con comisión de 15% (<span class="nb">Small Business Program</span> de Apple y suscripciones en Google).</p>
+  <table>
+    <thead><tr><th>Concepto</th><th class="num" style="width:22%">PRO mensual</th><th class="num" style="width:22%">PRO anual</th></tr></thead>
+    <tbody>
+      <tr><td>Precio que paga el usuario (IVA incluido)</td><td class="num">$3.990</td><td class="num">$39.900</td></tr>
+      <tr><td>IVA 19% (lo paga Apple; en Google lo paga la empresa)</td><td class="num">−$637</td><td class="num">−$6.371</td></tr>
+      <tr><td>Precio neto</td><td class="num">$3.353</td><td class="num">$33.529</td></tr>
+      <tr><td>Comisión de la tienda (15%)</td><td class="num">−$503</td><td class="num">−$5.029</td></tr>
+    </tbody>
+    <tfoot><tr><td>Queda para la empresa, antes del impuesto a la renta</td><td class="num">≈ $2.850</td><td class="num">≈ $28.500</td></tr></tfoot>
+  </table>
+  <p class="small">Ejemplo simplificado. Si la SpA no acredita ser contribuyente de IVA, las tiendas agregan 19% sobre la comisión y quedan ≈ $2.754 al mes. Las comisiones bancarias por transferencia internacional (US$0–50 por pago de Google) no están incluidas.</p>
+
+  <div class="two">
+    <div class="card">
+      <h3>Punto de equilibrio de la infraestructura</h3>
+      <table style="margin:0">
+        <thead><tr><th>Etapa</th><th class="num">Suscriptores mensuales</th></tr></thead>
+        <tbody>
+          <tr><td>Mínimo indispensable (~$36.500/mes)</td><td class="num">≈ 13</td></tr>
+          <tr><td>Lanzamiento (~$68.200/mes)</td><td class="num">≈ 24</td></tr>
+          <tr><td>Crecimiento (~$203.700/mes)</td><td class="num">≈ 72</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Ingreso neto de referencia</h3>
+      <table style="margin:0">
+        <thead><tr><th>Suscriptores PRO mensuales</th><th class="num">CLP/mes</th></tr></thead>
+        <tbody>
+          <tr><td>100</td><td class="num">≈ 285.000</td></tr>
+          <tr><td>500</td><td class="num">≈ 1.425.000</td></tr>
+          <tr><td>1.000</td><td class="num">≈ 2.850.000</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p class="small" style="margin-top:2mm">No incluye honorarios del contador, impuesto a la renta ni el tiempo del equipo.</p>
+</section>
+
+<!-- ======================= 8. PRÓXIMOS PASOS ======================= -->
+<section>
+  <h1 class="sec"><span class="n">8</span>Próximos pasos</h1>
+  <p class="lead">Lo que se puede hacer ya, en orden, para no perder semanas en trámites.</p>
+  <h3>Semana 1 (14 al 18 de septiembre) · la más cargada de trámites</h3>
+  <ol class="steps">
+    <li><span class="time">hoy</span><b class="h">Subir a git el trabajo pendiente</b>Backend, capa de datos, mapa y GPS. Es el mayor riesgo actual.</li>
+    <li><span class="time">lunes 14</span><b class="h">Abrir las cuentas de desarrollador</b>Apple individual (USD 99, sin <span class="nb">D-U-N-S</span>, se activa en 1–2 días) y Google Play (US$25). Pedir en paralelo el <span class="nb">D-U-N-S</span>, que se necesita para las cuentas de empresa y para cobrar más adelante.</li>
+    <li><span class="time">lunes 14 · no se puede atrasar</span><b class="h">Arrancar la prueba cerrada de Google Play con 12 testers</b>Se sube la versión actual a una pista cerrada. El plazo de 14 días corre en paralelo al desarrollo y vence a fines de septiembre, mucho antes de publicar. Si esto se atrasa, se atrasa la publicación de Android.</li>
+    <li><span class="time">&lt; 1 día</span><b class="h">Corregir permisos, firma, ícono, nombre e identificador</b>Sin esto, la versión de Android no tiene internet y la de iPhone se cierra al abrir la cámara.</li>
+    <li><span class="time">semana 1</span><b class="h">Entregar al cliente el APK y el TestFlight</b>Cierra la Fase 1 y libera el Pago 2 ($1.333.333 CLP).</li>
+    <li><span class="time">1 reunión</span><b class="h">Confirmar la dedicación del equipo</b>El plan de octubre supone a ambos a tiempo completo. Si no es así, hay que mover la fecha ahora y no en octubre.</li>
+    <li><span class="time">2–3 días</span><b class="h">Crear el proyecto Supabase de producción en São Paulo y el servidor de la API</b>Y corregir los dos riesgos críticos de seguridad (sección 4.4).</li>
+  </ol>
+  <h3>Semanas 2 y 3 (21 de septiembre al 2 de octubre)</h3>
+  <ol class="steps" start="8" style="counter-reset: s 7;">
+    <li><b class="h">Backend: módulos de cuidado y recordatorios, fotos en Storage, borrar cuenta y migraciones</b></li>
+    <li><b class="h">App: sesión guardada, rutas protegidas, capa de datos, y mascotas e inicio con datos reales</b></li>
+    <li><b class="h">Redactar la política de privacidad y los términos de uso, alineados con la Ley 21.719</b>Se publican en el dominio propio; ambas tiendas los exigen.</li>
+    <li><b class="h">Trámites de la empresa, en paralelo</b>Contador, constitución de la SpA, inicio de actividades y cuenta bancaria. No frenan la v1.0, pero sí el cobro del PRO en diciembre.</li>
+  </ol>
+  <h3>Semanas 4 a 7 (5 al 30 de octubre)</h3>
+  <ol class="steps" start="12" style="counter-reset: s 11;">
+    <li><b class="h">Conectar el resto de las pantallas de la v1.0 y el login real</b>Agenda, recordatorios con aviso, vacunas, medicinas, servicios, citas y alimentación.</li>
+    <li><b class="h">Ocultar del menú lo que no entra en la v1.0</b>Paseos, familia, certificados, crecimiento, eventos y PRO.</li>
+    <li><b class="h">Congelar el alcance el viernes 16 de octubre</b>Después de esa fecha, solo correcciones.</li>
+    <li><b class="h">QA en teléfonos reales, ficha de tienda, capturas y envío a revisión en la semana del 19</b>Publicación en la última semana de octubre.</li>
+  </ol>
+  <h3 style="break-before: auto;">Antes de activar el PRO (versión 1.1, diciembre)</h3>
+  <ol class="steps avoid" start="16" style="counter-reset: s 15;">
+    <li><b class="h">Configurar el cobro en Apple</b>Contrato de apps pagadas, banco, <span class="nb">W-8BEN-E</span>, condición de IVA y <span class="nb">Small Business Program</span>.</li>
+    <li><b class="h">Configurar el cobro en Google</b>Perfil de pagos, depósito de prueba, IVA, <span class="nb">W-8BEN-E</span> y Account Group.</li>
+    <li><b class="h">Crear los productos de suscripción en ambas tiendas y conectarlos con la app</b>PRO mensual ($3.990) y anual ($39.900).</li>
+  </ol>
+</section>
+
+<!-- ======================= ANEXO FUENTES ======================= -->
+<section>
+  <h1 class="sec"><span class="n">A</span>Anexo: fuentes consultadas</h1>
+  <p class="lead">Todas las páginas se consultaron el 11 de septiembre de 2026. Precios, comisiones y normas cambian: verifíquenlos antes de contratar o declarar.</p>
+
+  <h3>Pagos, empresa e impuestos en Chile</h3>
+  <ul class="src">
+    <li>Apple, inscripción: https://developer.apple.com/programs/enroll/ · <span class="nb">D-U-N-S</span>: https://developer.apple.com/help/account/membership/<span class="nb">D-U-N-S</span>/</li>
+    <li>Apple, contratos: https://developer.apple.com/help/app-store-connect/manage-agreements/sign-and-update-agreements/ · datos bancarios: https://developer.apple.com/help/app-store-connect/manage-banking-information/enter-banking-information/</li>
+    <li>Apple, pagos: https://developer.apple.com/help/app-store-connect/getting-paid/overview-of-receiving-payments/ · monto mínimo: https://developer.apple.com/help/app-store-connect/reference/minimum-payment-threshold/</li>
+    <li>Apple, Schedule 2 y 3 (v126): https://developer.apple.com/support/downloads/terms/schedules/Schedule-2-and-3-English.pdf · anexos: https://developer.apple.com/support/downloads/terms/exhibits/Exhibits-to-Schedule-2-and-3-English.pdf · IVA en Chile: https://developer.apple.com/news/?id=oyy56t2r</li>
+    <li>Apple, <span class="nb">Small Business Program</span>: https://developer.apple.com/app-store/small-business-program/ · datos tributarios: https://developer.apple.com/help/app-store-connect/manage-tax-information/provide-tax-information/</li>
+    <li>Apple, normas de revisión: https://developer.apple.com/app-store/review/guidelines/ · borrado de cuenta: https://developer.apple.com/support/offering-account-deletion-in-your-app/</li>
+    <li>Google Play, tipos de cuenta: https://support.google.com/googleplay/android-developer/answer/13634885 · organización y <span class="nb">D-U-N-S</span>: https://support.google.com/googleplay/android-developer/answer/13628312</li>
+    <li>Google Play, verificación en Chile: https://support.google.com/googleplay/android-developer/answer/15633622?co=GENIE.CountryCode%3DCL · prueba cerrada: https://support.google.com/googleplay/android-developer/answer/14151465 · registro: https://support.google.com/googleplay/android-developer/answer/6112435</li>
+    <li>Google Play, países: https://support.google.com/googleplay/android-developer/answer/9306917 · pagos: https://support.google.com/googleplay/android-developer/answer/2700656 · banco: https://support.google.com/googleplay/android-developer/answer/7161426</li>
+    <li>Google Play, comisiones: https://support.google.com/googleplay/android-developer/answer/112622 · https://support.google.com/googleplay/android-developer/answer/10632485 · nuevas tarifas: https://support.google.com/googleplay/android-developer/answer/16954621</li>
+    <li>Google Play, IVA: https://support.google.com/googleplay/android-developer/answer/138000 · vendedor formal: https://support.google.com/googleplay/android-developer/answer/7645364 · formularios de EE.UU.: https://support.google.com/paymentscenter/answer/10349995</li>
+    <li>Google Play, privacidad y borrado de cuenta: https://support.google.com/googleplay/android-developer/answer/10144311 · https://support.google.com/googleplay/android-developer/answer/13327111</li>
+    <li>AdMob, umbral: https://support.google.com/admob/answer/2772208 · ciclo de pagos: https://support.google.com/admob/answer/2772140</li>
+    <li>Tu Empresa en un Día: https://www.chileatiende.gob.cl/fichas/21409-tu-empresa-en-un-dia · https://www.registrodeempresasysociedades.cl/</li>
+    <li>SII, inicio de actividades: https://www.sii.cl/servicios_online/guia_ayuda_inicio_persona_natural_juridica.pdf · regímenes: https://www.sii.cl/destacados/modernizacion/tipos_regimenes_mt.html · Circular 53/2025: https://www.sii.cl/normativa_legislacion/circulares/2025/circu53.pdf</li>
+    <li>SII, exportador de servicios: https://www.sii.cl/destacados/exportador_servicios/ · factura de exportación: https://www.sii.cl/destacados/factura_electronica/guias_ayuda/emitir_factura_exportacion_electronica.pdf · IVA de servicios digitales: https://www.sii.cl/preguntas_frecuentes/iva_serv_digitales/001_200_7772.htm</li>
+    <li>Aduanas, calificación de servicios: https://www.aduana.cl/calificacion-de-servicios-como-exportacion/aduana/2018-12-16/222609.html</li>
+    <li>Tratado EE.UU.–Chile: https://home.treasury.gov/news/press-releases/jy2003 · https://www.irs.gov/businesses/international-businesses/chile-tax-treaty-documents</li>
+    <li>SERNAC, derecho a retracto: https://www.sernac.cl/portal/609/w3-propertyvalue-58897.html · Ley 21.719 y proyecto de postergación: https://www.carey.cl/gobierno-ingresa-proyecto-de-ley-que-posterga-en-un-ano-entrada-en-vigor-de-la-ley-sobre-proteccion-de-datos-personales</li>
+  </ul>
+
+  <h3>Infraestructura, Supabase y costos</h3>
+  <ul class="src">
+    <li>Supabase, precios: https://supabase.com/pricing · facturación: https://supabase.com/docs/guides/platform/billing-on-supabase · cómputo: https://supabase.com/docs/guides/platform/compute-and-disk</li>
+    <li>Supabase, IPv4: https://supabase.com/docs/guides/platform/ipv4-address · backups: https://supabase.com/docs/guides/platform/backups · egress: https://supabase.com/docs/guides/platform/manage-your-usage/egress</li>
+    <li>Supabase, conexión: https://supabase.com/docs/guides/database/connecting-to-postgres · Prisma: https://supabase.com/docs/guides/database/prisma · solución de problemas: https://supabase.com/docs/guides/database/prisma/prisma-troubleshooting</li>
+    <li>Supabase, regiones: https://supabase.com/docs/guides/platform/regions · cambio de región: https://supabase.com/docs/guides/troubleshooting/change-project-region-eWJo5Z</li>
+    <li>Supabase, Data API y RLS: https://supabase.com/docs/guides/database/hardening-data-api · https://supabase.com/docs/guides/database/postgres/row-level-security · entornos: https://supabase.com/docs/guides/deployment/managing-environments · producción: https://supabase.com/docs/guides/platform/going-into-prod</li>
+    <li>Prisma, base espejo: https://www.prisma.io/docs/orm/prisma-migrate/understanding-prisma-migrate/shadow-database · baseline: https://www.prisma.io/docs/orm/prisma-migrate/workflows/baselining · deploy: https://www.prisma.io/docs/cli/migrate/deploy</li>
+    <li>Latencia desde Santiago: https://wondernetwork.com/pings/Santiago/Sao%20Paulo · https://wondernetwork.com/pings/Santiago/Portland</li>
+    <li>Fly.io, precios: https://fly.io/docs/about/pricing/ · regiones: https://fly.io/docs/reference/regions/ · Google Cloud Run, precios: https://cloud.google.com/run/pricing · ubicaciones: https://docs.cloud.google.com/run/docs/locations</li>
+    <li>Render: https://render.com/docs/free · https://render.com/docs/regions · Railway: https://railway.com/pricing</li>
+    <li>OpenStreetMap, política de tiles: https://operations.osmfoundation.org/policies/tiles/ · Stadia Maps: https://stadiamaps.com/pricing/ · MapTiler: https://www.maptiler.com/cloud/pricing/ · Google Maps Platform: https://developers.google.com/maps/billing-and-pricing/pricing</li>
+    <li>Firebase: https://firebase.google.com/pricing · Resend: https://resend.com/pricing · Sentry: https://sentry.io/pricing/</li>
+    <li>NIC Chile, tarifas: https://www.nic.cl/dominios/tarifas.html · Google Workspace: https://workspace.google.com/intl/es-419/pricing.html · Zoho Mail: https://www.zoho.com/mail/zohomail-pricing.html</li>
+    <li>Dólar observado: https://www.sii.cl/valores_y_fechas/dolar/dolar2026.htm · IVA a servicios digitales: https://www.sii.cl/preguntas_frecuentes/iva_serv_digitales/001_200_7767.htm</li>
+  </ul>
+</section>
+
+</body>
+</html>
