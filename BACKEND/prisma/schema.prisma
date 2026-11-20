@@ -1,0 +1,358 @@
+// Agenda Pet — esquema de datos completo.
+// CRUD implementado por ahora para users/pets/feeding/walks + billing; el resto
+// de tablas ya está modelado para replicar el mismo patrón de módulo.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Identidad y cuenta ─────────────────────────────────────────────────────
+
+enum AuthProvider {
+  EMAIL
+  GOOGLE
+  APPLE
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String?  @unique
+  name         String?
+  avatarUrl    String?
+  passwordHash String? // solo para provider EMAIL
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  identities    Identity[]
+  refreshTokens RefreshToken[]
+  ownedPets     Pet[]           @relation("PetOwner")
+  memberships   PetMembership[]
+  walks         Walk[]          @relation("Walker")
+  notifications Notification[]
+  devices       Device[]
+  entitlement   Entitlement?
+  purchases     Purchase[]
+
+  @@map("users")
+}
+
+model Identity {
+  id             String       @id @default(cuid())
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  provider       AuthProvider
+  providerUserId String // sub de Google/Apple, o el email para EMAIL
+  createdAt      DateTime     @default(now())
+
+  @@unique([provider, providerUserId])
+  @@index([userId])
+  @@map("identities")
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  tokenHash String    @unique // guardamos solo el hash del refresh token
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+// ─── Mascotas y familia ─────────────────────────────────────────────────────
+
+model Pet {
+  id        String    @id @default(cuid())
+  owner     User      @relation("PetOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId   String
+  name      String
+  species   String
+  breed     String?
+  birthDate DateTime?
+  weightKg  Float?
+  avatarUrl String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  memberships   PetMembership[]
+  feedingPlans  FeedingPlan[]
+  walks         Walk[]
+  growthEntries GrowthEntry[]
+  events        PetEvent[]
+  careRecords   CareRecord[]
+  reminders     Reminder[]
+
+  @@index([ownerId])
+  @@map("pets")
+}
+
+enum MemberRole {
+  OWNER
+  EDITOR
+  VIEWER
+  WALKER // paseador
+}
+
+enum MemberStatus {
+  ACTIVE
+  PENDING
+}
+
+model PetMembership {
+  id          String       @id @default(cuid())
+  pet         Pet          @relation(fields: [petId], references: [id], onDelete: Cascade)
+  petId       String
+  user        User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String? // null mientras la invitación esté pendiente
+  inviteEmail String? // para invitaciones por correo aún sin aceptar
+  role        MemberRole   @default(VIEWER)
+  status      MemberStatus @default(PENDING)
+  createdAt   DateTime     @default(now())
+
+  @@unique([petId, userId])
+  @@index([petId])
+  @@index([userId])
+  @@map("pet_memberships")
+}
+
+// ─── Alimentación ───────────────────────────────────────────────────────────
+
+enum FoodKind {
+  DRY
+  WET
+  MIXED
+}
+
+enum ActivityLevel {
+  LOW
+  NORMAL
+  HIGH
+}
+
+model FeedingPlan {
+  id        String        @id @default(cuid())
+  pet       Pet           @relation(fields: [petId], references: [id], onDelete: Cascade)
+  petId     String
+  foodName  String
+  brand     String?
+  kind      FoodKind      @default(DRY)
+  bagSizeKg Float?
+  dailyGrams Int?
+  activity  ActivityLevel @default(NORMAL)
+  openedAt  DateTime?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([petId])
+  @@map("feeding_plans")
+}
+
+// ─── Paseos (estilo Strava) ─────────────────────────────────────────────────
+
+model Walk {
+  id          String    @id @default(cuid())
+  pet         Pet       @relation(fields: [petId], references: [id], onDelete: Cascade)
+  petId       String
+  walker      User      @relation("Walker", fields: [walkerId], references: [id])
+  walkerId    String
+  startedAt   DateTime
+  endedAt     DateTime?
+  distanceKm  Float     @default(0)
+  durationSec Int       @default(0)
+  route       Json? // lista de puntos [{lat,lng} | {x,y}]
+  byWalker    Boolean   @default(false) // iniciado por un paseador (no familiar)
+  kudos       Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  @@index([petId])
+  @@index([walkerId])
+  @@map("walks")
+}
+
+// ─── Crecimiento y recuerdos ────────────────────────────────────────────────
+
+model GrowthEntry {
+  id        String   @id @default(cuid())
+  pet       Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+  petId     String
+  date      DateTime
+  ageLabel  String?
+  weightKg  Float?
+  heightCm  Float?
+  note      String?
+  photoUrl  String?
+  createdAt DateTime @default(now())
+
+  @@index([petId])
+  @@map("growth_entries")
+}
+
+model PetEvent {
+  id        String   @id @default(cuid())
+  pet       Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+  petId     String
+  date      DateTime
+  title     String
+  type      String? // cumpleaños, primera vez, etc.
+  note      String?
+  photoUrl  String?
+  createdAt DateTime @default(now())
+
+  @@index([petId])
+  @@map("pet_events")
+}
+
+// ─── Cuidado (vacunas / medicinas / servicios / citas) ──────────────────────
+
+enum CareType {
+  VACCINE
+  MEDICINE
+  SERVICE
+  APPOINTMENT
+}
+
+model CareRecord {
+  id          String    @id @default(cuid())
+  pet         Pet       @relation(fields: [petId], references: [id], onDelete: Cascade)
+  petId       String
+  type        CareType
+  name        String
+  date        DateTime
+  nextDueDate DateTime?
+  notes       String?
+  createdAt   DateTime  @default(now())
+
+  @@index([petId])
+  @@map("care_records")
+}
+
+model Reminder {
+  id        String   @id @default(cuid())
+  pet       Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+  petId     String
+  title     String
+  type      String?
+  dueAt     DateTime
+  done      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([petId])
+  @@map("reminders")
+}
+
+// ─── Tips (curados, globales) ───────────────────────────────────────────────
+
+model Tip {
+  id        String   @id @default(cuid())
+  category  String
+  title     String
+  body      String
+  createdAt DateTime @default(now())
+
+  @@map("tips")
+}
+
+// ─── Notificaciones ─────────────────────────────────────────────────────────
+
+enum NotificationCategory {
+  GROWTH
+  MEMORIES
+  HEALTH
+  DAILY
+  WALK
+  BILLING
+}
+
+model Notification {
+  id        String               @id @default(cuid())
+  user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  category  NotificationCategory
+  title     String
+  body      String
+  readAt    DateTime?
+  createdAt DateTime             @default(now())
+
+  @@index([userId])
+  @@map("notifications")
+}
+
+enum Platform {
+  IOS
+  ANDROID
+  WEB
+}
+
+model Device {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  platform  Platform
+  pushToken String   @unique
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@map("devices")
+}
+
+// ─── Facturación / suscripción (IAP App Store + Play) ───────────────────────
+
+enum Plan {
+  FREE
+  PRO
+}
+
+enum Store {
+  NONE
+  APPLE
+  GOOGLE
+}
+
+enum EntitlementStatus {
+  ACTIVE
+  EXPIRED
+  GRACE_PERIOD
+  REVOKED
+  NONE
+}
+
+model Entitlement {
+  id                    String            @id @default(cuid())
+  user                  User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId                String            @unique
+  plan                  Plan              @default(FREE)
+  store                 Store             @default(NONE)
+  productId             String?
+  status                EntitlementStatus @default(NONE)
+  expiresAt             DateTime?
+  autoRenew             Boolean           @default(false)
+  originalTransactionId String? // Apple
+  purchaseToken         String? // Google
+  updatedAt             DateTime          @updatedAt
+
+  @@map("entitlements")
+}
+
+model Purchase {
+  id            String   @id @default(cuid())
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  store         Store
+  productId     String
+  transactionId String
+  type          String // subscription | product | notification
+  rawPayload    Json?
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+  @@index([store, transactionId])
+  @@map("purchases")
+}

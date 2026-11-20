@@ -1,0 +1,23 @@
+# Levanta PostgreSQL para desarrollo local:
+#   docker compose up -d
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: agendapet-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: agendapet
+      POSTGRES_PASSWORD: agendapet
+      POSTGRES_DB: agendapet
+    ports:
+      - "5432:5432"
+    volumes:
+      - agendapet_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agendapet"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  agendapet_db:

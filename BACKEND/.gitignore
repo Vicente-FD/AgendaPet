@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+secrets/
+*.p8
+*.log
+coverage/
+.DS_Store
