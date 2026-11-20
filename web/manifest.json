@@ -1,11 +1,11 @@
 {
-    "name": "agenda_pet",
-    "short_name": "agenda_pet",
+    "name": "Agenda Pet",
+    "short_name": "Agenda Pet",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#FFFFFF",
+    "theme_color": "#43A047",
+    "description": "Organiza y cuida a tus mascotas: vacunas, medicinas, paseos y recordatorios en un solo lugar.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

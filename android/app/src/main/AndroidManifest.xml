@@ -1,6 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Requerida para hablar con la API y cargar los mapas. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Avisos de recordatorios (Android 13+). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <!-- Reprogramar los avisos después de reiniciar el teléfono. -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <!-- Ubicación durante los paseos (solo con la app abierta). -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <application
-        android:label="agenda_pet"
+        android:label="Agenda Pet"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

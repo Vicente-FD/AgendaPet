@@ -66,5 +66,13 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Agenda Pet usa la cámara para tomar fotos de tu mascota y escanear sus certificados.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Agenda Pet accede a tus fotos para que elijas la imagen de tu mascota y sus documentos.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Agenda Pet guarda en tus fotos las imágenes que generes en la app.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Agenda Pet usa tu ubicación para registrar el recorrido del paseo mientras la app está abierta.</string>
 </dict>
 </plist>

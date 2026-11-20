@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 116" fill="none">
+  <g fill="#43A047">
+    <!-- Dedos de la huella -->
+    <ellipse cx="32" cy="48" rx="12" ry="16" transform="rotate(-18 32 48)"/>
+    <ellipse cx="55" cy="31" rx="13" ry="19"/>
+    <ellipse cx="81" cy="31" rx="13" ry="19"/>
+    <ellipse cx="104" cy="48" rx="12" ry="16" transform="rotate(18 104 48)"/>
+
+    <!-- Anillas del calendario -->
+    <rect x="52" y="49" width="8" height="19" rx="4"/>
+    <rect x="76" y="49" width="8" height="19" rx="4"/>
+
+    <!-- Cuerpo del calendario con ventana recortada (fill-rule evenodd) -->
+    <path fill-rule="evenodd" clip-rule="evenodd"
+      d="M50 58 h28 a15 15 0 0 1 15 15 v22 a15 15 0 0 1 -15 15 h-28 a15 15 0 0 1 -15 -15 v-22 a15 15 0 0 1 15 -15 z
+         M52 74 h24 a5 5 0 0 1 5 5 v14 a5 5 0 0 1 -5 5 h-24 a5 5 0 0 1 -5 -5 v-14 a5 5 0 0 1 5 -5 z"/>
+
+    <!-- Días (fila 1) -->
+    <rect x="51" y="77" width="6.5" height="6.5" rx="1.7"/>
+    <rect x="60.5" y="77" width="6.5" height="6.5" rx="1.7"/>
+    <rect x="70" y="77" width="6.5" height="6.5" rx="1.7"/>
+    <!-- Días (fila 2) -->
+    <rect x="51" y="86.5" width="6.5" height="6.5" rx="1.7"/>
+    <rect x="60.5" y="86.5" width="6.5" height="6.5" rx="1.7"/>
+  </g>
+
+  <!-- Check -->
+  <path d="M70 89.5 l3.2 3.2 l6.3 -7"
+        fill="none" stroke="#43A047" stroke-width="3.4"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

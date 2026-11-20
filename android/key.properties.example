@@ -1,0 +1,13 @@
+# Copia este archivo como android/key.properties y completa los valores.
+# NUNCA lo subas a git: contiene las claves de firma de la app.
+#
+# Para crear el keystore (una sola vez, guárdalo en un lugar seguro y con respaldo:
+# si se pierde, no se puede publicar una actualización de la app):
+#
+#   keytool -genkey -v -keystore agendapet-release.jks -storetype JKS \
+#     -keyalg RSA -keysize 2048 -validity 10000 -alias agendapet
+#
+storePassword=
+keyPassword=
+keyAlias=agendapet
+storeFile=../agendapet-release.jks
