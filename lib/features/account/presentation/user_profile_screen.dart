@@ -2,7 +2,12 @@ import 'dart:typed_data';
 
 import 'package:agenda_pet/core/mocks/user_mock_data.dart';
 import 'package:agenda_pet/core/routing/app_navigation.dart';
+import 'package:agenda_pet/core/data/repositories.dart';
 import 'package:agenda_pet/core/state/app_settings.dart';
+import 'package:agenda_pet/core/state/auth_session.dart';
+import 'package:agenda_pet/core/state/care_store.dart';
+import 'package:agenda_pet/core/state/pets_store.dart';
+import 'package:agenda_pet/core/state/reminders_store.dart';
 import 'package:agenda_pet/core/theme/app_colors.dart';
 import 'package:agenda_pet/shared/widgets/animated_count.dart';
 import 'package:agenda_pet/shared/widgets/pet_avatar.dart';
@@ -19,6 +24,69 @@ class UserProfileScreen extends StatefulWidget {
 }
 
 class _UserProfileScreenState extends State<UserProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await PetsStore.instance.load();
+      await CareStore.instance.loadForSelected();
+    });
+  }
+
+  /// Cambia el nombre de la cuenta contra la API (`PATCH /users/me`).
+  Future<void> _editarNombre() async {
+    final controlador = TextEditingController(
+      text: AuthSession.instance.user?.name ?? '',
+    );
+    final nuevo = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Editar nombre'),
+        content: TextField(
+          controller: controlador,
+          autofocus: true,
+          textCapitalization: TextCapitalization.words,
+          decoration: const InputDecoration(hintText: 'Tu nombre'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(controlador.text.trim()),
+            child: const Text('Guardar'),
+          ),
+        ],
+      ),
+    );
+    if (nuevo == null || nuevo.isEmpty) return;
+
+    try {
+      await Repositories.account.updateName(nuevo);
+      if (!mounted) return;
+      setState(() {});
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text('Nombre actualizado'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text('No se pudo actualizar: ${mensajeDeError(e)}'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+    }
+  }
+
   Uint8List? _photo;
 
   Future<void> _changePhoto() async {
@@ -57,18 +125,27 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           Center(
             child: Column(
               children: [
-                Text(
-                  UserMockData.name,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      AuthSession.instance.user?.name ?? UserMockData.name,
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.w700),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.edit_outlined, size: 20),
+                      tooltip: 'Editar nombre',
+                      onPressed: _editarNombre,
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  UserMockData.email,
+                  AuthSession.instance.user?.email ?? UserMockData.email,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                    color: AppColors.textSecondary,
+                  ),
                 ),
                 const SizedBox(height: 10),
                 ListenableBuilder(
@@ -119,7 +196,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 side: BorderSide(
-                    color: AppColors.actionServices.withValues(alpha: 0.4)),
+                  color: AppColors.actionServices.withValues(alpha: 0.4),
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -146,9 +224,9 @@ class _FreeBadge extends StatelessWidget {
       child: Text(
         'Plan Free',
         style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              color: AppColors.textSecondary,
-              fontWeight: FontWeight.w700,
-            ),
+          color: AppColors.textSecondary,
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
   }
@@ -159,32 +237,39 @@ class _StatsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
-      children: [
-        Expanded(
-          child: _StatCard(
-            value: UserMockData.petsCount,
-            label: 'Mascotas',
-            icon: Icons.pets,
+    return ListenableBuilder(
+      listenable: Listenable.merge([
+        PetsStore.instance,
+        RemindersStore.instance,
+        CareStore.instance,
+      ]),
+      builder: (context, _) => Row(
+        children: [
+          Expanded(
+            child: _StatCard(
+              value: PetsStore.instance.pets.length,
+              label: 'Mascotas',
+              icon: Icons.pets,
+            ),
           ),
-        ),
-        SizedBox(width: 12),
-        Expanded(
-          child: _StatCard(
-            value: UserMockData.remindersCount,
-            label: 'Recordatorios',
-            icon: Icons.notifications_active_outlined,
+          const SizedBox(width: 12),
+          Expanded(
+            child: _StatCard(
+              value: RemindersStore.instance.pendingCount,
+              label: 'Recordatorios',
+              icon: Icons.notifications_active_outlined,
+            ),
           ),
-        ),
-        SizedBox(width: 12),
-        Expanded(
-          child: _StatCard(
-            value: UserMockData.photosCount,
-            label: 'Fotos',
-            icon: Icons.photo_library_outlined,
+          const SizedBox(width: 12),
+          Expanded(
+            child: _StatCard(
+              value: CareStore.instance.items.length,
+              label: 'Cuidados',
+              icon: Icons.favorite_outline,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -211,16 +296,16 @@ class _StatCard extends StatelessWidget {
             const SizedBox(height: 6),
             AnimatedCount(
               value: value,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
             ),
             Text(
               label,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
             ),
           ],
         ),
@@ -271,21 +356,23 @@ class _LinkTile extends StatelessWidget {
                     Text(
                       title,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       subtitle,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right_rounded,
-                  color: AppColors.textSecondary.withValues(alpha: 0.6)),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: AppColors.textSecondary.withValues(alpha: 0.6),
+              ),
             ],
           ),
         ),

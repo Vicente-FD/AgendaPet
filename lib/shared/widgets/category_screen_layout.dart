@@ -14,6 +14,9 @@ class CategoryScreenLayout extends StatelessWidget {
     required this.icon,
     required this.color,
     required this.items,
+    this.loading = false,
+    this.statusMessage,
+    this.onRefresh,
     this.addButtonLabel,
     this.onAddPressed,
   });
@@ -23,6 +26,15 @@ class CategoryScreenLayout extends StatelessWidget {
   final IconData icon;
   final Color color;
   final List<MockCareItem> items;
+
+  /// Muestra un indicador mientras llegan los registros.
+  final bool loading;
+
+  /// Mensaje para cuando no hay registros o falló la carga.
+  final String? statusMessage;
+
+  /// Permite deslizar hacia abajo para recargar.
+  final Future<void> Function()? onRefresh;
   final String? addButtonLabel;
   final VoidCallback? onAddPressed;
 
@@ -36,40 +48,64 @@ class CategoryScreenLayout extends StatelessWidget {
         ),
         title: Text(title),
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-        children: [
-          _CategoryHeader(
-            title: title,
-            subtitle: subtitle,
-            icon: icon,
-            color: color,
-          ),
-          const SizedBox(height: 20),
-          Text(
-            'Registros',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
+      body: _conRefresco(
+        ListView(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+          children: [
+            _CategoryHeader(
+              title: title,
+              subtitle: subtitle,
+              icon: icon,
+              color: color,
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Registros',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 12),
+            if (loading)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 24),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (items.isEmpty)
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Text(
+                    statusMessage ?? 'Todavía no hay registros.',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
                 ),
-          ),
-          const SizedBox(height: 12),
-          ...items.map(
-            (item) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: CareItemCard(item: item),
-            ),
-          ),
-          if (addButtonLabel != null) ...[
-            const SizedBox(height: 8),
-            PrimaryButton(
-              label: addButtonLabel!,
-              icon: Icons.add,
-              onPressed: onAddPressed,
-            ),
+              )
+            else
+              ...items.map(
+                (item) => Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: CareItemCard(item: item),
+                ),
+              ),
+            if (addButtonLabel != null) ...[
+              const SizedBox(height: 8),
+              PrimaryButton(
+                label: addButtonLabel!,
+                icon: Icons.add,
+                onPressed: onAddPressed,
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
+  }
+
+  Widget _conRefresco(Widget hijo) {
+    final refrescar = onRefresh;
+    if (refrescar == null) return hijo;
+    return RefreshIndicator(onRefresh: refrescar, child: hijo);
   }
 }
 
@@ -113,16 +149,16 @@ class _CategoryHeader extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ],
             ),

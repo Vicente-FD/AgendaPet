@@ -1,11 +1,12 @@
 import 'package:agenda_pet/core/mocks/agenda_calendar_mock_data.dart';
 import 'package:agenda_pet/core/theme/app_colors.dart';
+import 'package:agenda_pet/features/care/data/care_dto.dart' as care;
+import 'package:agenda_pet/features/care/data/care_form.dart';
 import 'package:agenda_pet/shared/widgets/add_form_scaffold.dart';
 import 'package:agenda_pet/shared/widgets/labeled_dropdown_field.dart';
 import 'package:agenda_pet/shared/widgets/labeled_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:agenda_pet/core/utils/date_format.dart';
-import 'package:go_router/go_router.dart';
 
 class AddAppointmentScreen extends StatefulWidget {
   const AddAppointmentScreen({super.key});
@@ -25,6 +26,7 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
   CareEventType _eventType = CareEventType.agenda;
+  bool _saving = false;
 
   @override
   void dispose() {
@@ -51,8 +53,9 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
           label: 'Título',
           controller: _titleController,
           hint: 'Ej: Control veterinario',
-          validator: (value) =>
-              value == null || value.trim().isEmpty ? 'Ingresa un título' : null,
+          validator: (value) => value == null || value.trim().isEmpty
+              ? 'Ingresa un título'
+              : null,
           textInputAction: TextInputAction.next,
         ),
         LabeledDropdownField<CareEventType>(
@@ -60,10 +63,8 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
           value: _eventType,
           items: CareEventType.values
               .map(
-                (type) => DropdownMenuItem(
-                  value: type,
-                  child: Text(type.label),
-                ),
+                (type) =>
+                    DropdownMenuItem(value: type, child: Text(type.label)),
               )
               .toList(),
           onChanged: (value) {
@@ -135,10 +136,32 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
     });
   }
 
-  void _submit() {
-    if (!_formKey.currentState!.validate()) return;
+  Future<void> _submit() async {
+    if (_saving || !_formKey.currentState!.validate()) return;
 
-    showFormSavedSnackBar(context, 'Cita "${_titleController.text.trim()}" guardada');
-    context.pop();
+    final titulo = _titleController.text.trim();
+    final fecha = _selectedDate ?? DateTime.now();
+    final hora = _selectedTime ?? TimeOfDay.now();
+
+    setState(() => _saving = true);
+    final guardado = await guardarCuidado(
+      context,
+      type: care.CareType.appointment,
+      name: titulo,
+      date: DateTime(
+        fecha.year,
+        fecha.month,
+        fecha.day,
+        hora.hour,
+        hora.minute,
+      ),
+      notes: notasCompuestas({
+        'Tipo': _eventType.label,
+        'Lugar': _locationController.text,
+        'Notas': _notesController.text,
+      }),
+      mensajeOk: 'Cita "$titulo" guardada',
+    );
+    if (!guardado && mounted) setState(() => _saving = false);
   }
 }

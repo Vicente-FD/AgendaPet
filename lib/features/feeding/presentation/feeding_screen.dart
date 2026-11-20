@@ -1,4 +1,6 @@
 import 'package:agenda_pet/core/mocks/feeding_mock_data.dart';
+import 'package:agenda_pet/core/state/feeding_store.dart';
+import 'package:agenda_pet/core/state/pets_store.dart';
 import 'package:agenda_pet/core/routing/app_navigation.dart';
 import 'package:agenda_pet/core/theme/app_colors.dart';
 import 'package:agenda_pet/core/theme/app_surfaces.dart';
@@ -18,60 +20,96 @@ class FeedingScreen extends StatefulWidget {
 }
 
 class _FeedingScreenState extends State<FeedingScreen> {
-  static const _plan = FeedingMockData.currentPlan;
+  double? _weightKg;
+  ActivityLevel? _activity;
 
-  late double _weightKg = _plan.weightKg;
-  late ActivityLevel _activity = _plan.activity;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _cargar());
+  }
+
+  Future<void> _cargar({bool force = false}) async {
+    await PetsStore.instance.load(force: force);
+    await FeedingStore.instance.loadForSelected(force: force);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () => context.pop(),
-        ),
-        title: const Text('Alimentación'),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-        children: [
-          const _PlanSummaryCard(plan: _plan),
-          const SizedBox(height: 24),
-          const SectionHeader(title: 'Próxima compra'),
-          const SizedBox(height: 12),
-          _PurchaseCard(plan: _plan, onRemind: _remindPurchase),
-          const SizedBox(height: 24),
-          const SectionHeader(title: 'Dosis recomendada'),
-          const SizedBox(height: 12),
-          _DoseCalculator(
-            plan: _plan,
-            weightKg: _weightKg,
-            activity: _activity,
-            onWeightChanged: (v) => setState(() => _weightKg = v),
-            onActivityChanged: (a) => setState(() => _activity = a),
+    return ListenableBuilder(
+      listenable: Listenable.merge([PetsStore.instance, FeedingStore.instance]),
+      builder: (context, _) {
+        final mascota = PetsStore.instance.selected;
+        final dto = FeedingStore.instance.actual;
+        final plan = (mascota == null || dto == null)
+            ? null
+            : dto.toPlan(mascota);
+
+        if (plan == null) {
+          return _SinPlan(
+            cargando: FeedingStore.instance.loading,
+            mensaje:
+                FeedingStore.instance.error ??
+                (mascota == null
+                    ? 'Agrega una mascota para registrar su alimentación.'
+                    : 'Todavía no registras el alimento de ${mascota.name}.'),
+          );
+        }
+
+        // Los controles de la calculadora parten del plan y luego los mueve
+        // la persona.
+        final peso = _weightKg ?? plan.weightKg;
+        final actividad = _activity ?? plan.activity;
+
+        return Scaffold(
+          appBar: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new_rounded),
+              onPressed: () => context.pop(),
+            ),
+            title: const Text('Alimentación'),
           ),
-          const SizedBox(height: 24),
-          const SectionHeader(title: 'Tabla de referencia'),
-          const SizedBox(height: 12),
-          const _GuidelineTable(),
-          const SizedBox(height: 12),
-          Text(
-            'Valores referenciales para alimento seco. Próximamente se ajustarán '
-            'automáticamente según raza, edad y condición corporal.',
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          body: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+            children: [
+              _PlanSummaryCard(plan: plan),
+              const SizedBox(height: 24),
+              const SectionHeader(title: 'Próxima compra'),
+              const SizedBox(height: 12),
+              _PurchaseCard(plan: plan, onRemind: _remindPurchase),
+              const SizedBox(height: 24),
+              const SectionHeader(title: 'Dosis recomendada'),
+              const SizedBox(height: 12),
+              _DoseCalculator(
+                plan: plan,
+                weightKg: peso,
+                activity: actividad,
+                onWeightChanged: (v) => setState(() => _weightKg = v),
+                onActivityChanged: (a) => setState(() => _activity = a),
+              ),
+              const SizedBox(height: 24),
+              const SectionHeader(title: 'Tabla de referencia'),
+              const SizedBox(height: 12),
+              const _GuidelineTable(),
+              const SizedBox(height: 12),
+              Text(
+                'Valores referenciales para alimento seco. Próximamente se ajustarán '
+                'automáticamente según raza, edad y condición corporal.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: AppColors.textSecondary,
                   height: 1.4,
                 ),
+              ),
+              const SizedBox(height: 20),
+              PrimaryButton(
+                label: 'Registrar alimento',
+                icon: Icons.add,
+                onPressed: () => context.goAddFeeding(),
+              ),
+            ],
           ),
-          const SizedBox(height: 20),
-          PrimaryButton(
-            label: 'Registrar alimento',
-            icon: Icons.add,
-            onPressed: () => context.goAddFeeding(),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -124,8 +162,11 @@ class _PlanSummaryCard extends StatelessWidget {
                         color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(14),
                       ),
-                      child: const Icon(Icons.restaurant_outlined,
-                          color: Colors.white, size: 26),
+                      child: const Icon(
+                        Icons.restaurant_outlined,
+                        color: Colors.white,
+                        size: 26,
+                      ),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -134,9 +175,7 @@ class _PlanSummaryCard extends StatelessWidget {
                         children: [
                           Text(
                             '${plan.brand} · ${plan.foodName}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
+                            style: Theme.of(context).textTheme.titleMedium
                                 ?.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w700,
@@ -145,9 +184,7 @@ class _PlanSummaryCard extends StatelessWidget {
                           const SizedBox(height: 2),
                           Text(
                             'Alimento de ${plan.petName}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
+                            style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(
                                   color: Colors.white.withValues(alpha: 0.9),
                                 ),
@@ -164,11 +201,13 @@ class _PlanSummaryCard extends StatelessWidget {
                   children: [
                     _GlassChip(icon: Icons.set_meal_outlined, label: plan.kind),
                     _GlassChip(
-                        icon: Icons.shopping_bag_outlined,
-                        label: 'Saco ${_kg(plan.bagSizeKg)}'),
+                      icon: Icons.shopping_bag_outlined,
+                      label: 'Saco ${_kg(plan.bagSizeKg)}',
+                    ),
                     _GlassChip(
-                        icon: Icons.monitor_weight_outlined,
-                        label: '${_kg(plan.weightKg)} · ${plan.breed}'),
+                      icon: Icons.monitor_weight_outlined,
+                      label: '${_kg(plan.weightKg)} · ${plan.breed}',
+                    ),
                   ],
                 ),
               ],
@@ -234,15 +273,16 @@ class _PurchaseCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'Quedan ~${(plan.remainingFraction * 100).round()}% del saco',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w700),
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: (low ? AppColors.actionServices : AppColors.feeding)
                         .withValues(alpha: 0.12),
@@ -321,17 +361,16 @@ class _PurchaseRow extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
           ),
         ),
         Text(
           value,
-          style: Theme.of(context)
-              .textTheme
-              .bodyMedium
-              ?.copyWith(fontWeight: FontWeight.w600),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -378,15 +417,15 @@ class _DoseCalculator extends StatelessWidget {
                   Text(
                     '$grams g',
                     style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                          color: AppColors.feeding,
-                          fontWeight: FontWeight.w800,
-                        ),
+                      color: AppColors.feeding,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                   Text(
                     'al día · ~$perMeal g por toma (2 tomas)',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ],
               ),
@@ -396,18 +435,17 @@ class _DoseCalculator extends StatelessWidget {
               children: [
                 Text(
                   'Peso',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(fontWeight: FontWeight.w600),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 const Spacer(),
                 Text(
                   '${weightKg.toStringAsFixed(weightKg % 1 == 0 ? 0 : 1)} kg',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.feeding,
-                        fontWeight: FontWeight.w700,
-                      ),
+                    color: AppColors.feeding,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ],
             ),
@@ -430,10 +468,9 @@ class _DoseCalculator extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               'Nivel de actividad',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(fontWeight: FontWeight.w600),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             Wrap(
@@ -463,16 +500,19 @@ class _DoseCalculator extends StatelessWidget {
             const SizedBox(height: 8),
             Row(
               children: [
-                const Icon(Icons.info_outline,
-                    size: 14, color: AppColors.textSecondary),
+                const Icon(
+                  Icons.info_outline,
+                  size: 14,
+                  color: AppColors.textSecondary,
+                ),
                 const SizedBox(width: 6),
                 Expanded(
                   child: Text(
                     'Calculado para ${plan.breed} (${plan.species}). Consulta a tu '
                     'veterinario para una ración exacta.',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ),
               ],
@@ -505,10 +545,9 @@ class _GuidelineTable extends StatelessWidget {
                       flex: 3,
                       child: Text(
                         FeedingMockData.guideline[i].weightRange,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.copyWith(fontWeight: FontWeight.w600),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                     Expanded(
@@ -524,8 +563,8 @@ class _GuidelineTable extends StatelessWidget {
                         FeedingMockData.guideline[i].meals,
                         textAlign: TextAlign.end,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.textSecondary,
-                            ),
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ),
                   ],
@@ -539,5 +578,54 @@ class _GuidelineTable extends StatelessWidget {
   }
 }
 
-String _kg(double v) =>
-    '${v.toStringAsFixed(v % 1 == 0 ? 0 : 1)} kg';
+String _kg(double v) => '${v.toStringAsFixed(v % 1 == 0 ? 0 : 1)} kg';
+
+/// Estado inicial de Alimentación: sin plan registrado todavía.
+class _SinPlan extends StatelessWidget {
+  const _SinPlan({required this.cargando, required this.mensaje});
+
+  final bool cargando;
+  final String mensaje;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () => context.pop(),
+        ),
+        title: const Text('Alimentación'),
+      ),
+      body: cargando
+          ? const Center(child: CircularProgressIndicator())
+          : Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.restaurant_outlined,
+                      size: 56,
+                      color: AppColors.feeding,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      mensaje,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    const SizedBox(height: 20),
+                    PrimaryButton(
+                      label: 'Registrar alimento',
+                      icon: Icons.add,
+                      onPressed: () => context.goAddFeeding(),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+    );
+  }
+}

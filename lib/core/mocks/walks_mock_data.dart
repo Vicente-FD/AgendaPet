@@ -1,5 +1,6 @@
 import 'package:agenda_pet/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 
 /// Persona que puede iniciar paseos: un miembro de la familia o un paseador
 /// profesional añadido a la familia.
@@ -23,7 +24,7 @@ class Walker {
   final bool isProfessional;
 }
 
-/// Un paseo registrado (estilo Strava): recorrido + métricas.
+/// Un paseo registrado (estilo Strava): recorrido real + métricas.
 class WalkRecord {
   const WalkRecord({
     required this.walkerName,
@@ -49,8 +50,8 @@ class WalkRecord {
   final int kudos;
   final Color avatarColor;
 
-  /// Puntos del recorrido normalizados (0..1) para [RouteMap].
-  final List<Offset> route;
+  /// Recorrido real (coordenadas geográficas) para dibujar en el mapa.
+  final List<LatLng> route;
 
   /// true si lo inició un paseador; false si un familiar.
   final bool byWalker;
@@ -59,37 +60,37 @@ class WalkRecord {
 abstract final class WalksMockData {
   static const String petName = 'Carolina';
 
-  // --- Recorridos de ejemplo (coordenadas normalizadas 0..1). ---
-  static const List<Offset> _routeA = [
-    Offset(0.08, 0.80),
-    Offset(0.18, 0.60),
-    Offset(0.32, 0.66),
-    Offset(0.42, 0.46),
-    Offset(0.56, 0.52),
-    Offset(0.68, 0.32),
-    Offset(0.82, 0.40),
-    Offset(0.92, 0.20),
+  // --- Recorridos de ejemplo (coordenadas reales, Santiago de Chile). ---
+
+  // Parque Forestal / Bellas Artes (Santiago Centro).
+  static const List<LatLng> _routeForestal = [
+    LatLng(-33.43594, -70.64510),
+    LatLng(-33.43520, -70.64300),
+    LatLng(-33.43470, -70.64090),
+    LatLng(-33.43540, -70.63900),
+    LatLng(-33.43680, -70.63820),
+    LatLng(-33.43800, -70.63930),
+    LatLng(-33.43760, -70.64150),
   ];
 
-  static const List<Offset> _routeB = [
-    Offset(0.10, 0.28),
-    Offset(0.24, 0.40),
-    Offset(0.30, 0.62),
-    Offset(0.46, 0.68),
-    Offset(0.58, 0.50),
-    Offset(0.72, 0.58),
-    Offset(0.86, 0.42),
-    Offset(0.90, 0.72),
+  // Providencia (Parque de las Esculturas / Pedro de Valdivia).
+  static const List<LatLng> _routeProvidencia = [
+    LatLng(-33.42640, -70.61600),
+    LatLng(-33.42560, -70.61350),
+    LatLng(-33.42600, -70.61100),
+    LatLng(-33.42760, -70.61030),
+    LatLng(-33.42880, -70.61180),
+    LatLng(-33.42820, -70.61450),
   ];
 
-  static const List<Offset> _routeC = [
-    Offset(0.10, 0.72),
-    Offset(0.22, 0.50),
-    Offset(0.36, 0.56),
-    Offset(0.46, 0.34),
-    Offset(0.62, 0.42),
-    Offset(0.74, 0.24),
-    Offset(0.90, 0.34),
+  // Parque Bustamante / Providencia sur (Ñuñoa límite).
+  static const List<LatLng> _routeBustamante = [
+    LatLng(-33.44560, -70.63230),
+    LatLng(-33.44450, -70.63050),
+    LatLng(-33.44380, -70.62830),
+    LatLng(-33.44500, -70.62680),
+    LatLng(-33.44680, -70.62740),
+    LatLng(-33.44760, -70.62950),
   ];
 
   /// Resumen semanal (para la tarjeta destacada).
@@ -135,7 +136,7 @@ abstract final class WalksMockData {
       paceLabel: "11'55\"/km",
       kudos: 12,
       avatarColor: AppColors.walk,
-      route: _routeC,
+      route: _routeBustamante,
       byWalker: true,
     ),
     WalkRecord(
@@ -148,7 +149,7 @@ abstract final class WalksMockData {
       paceLabel: "13'20\"/km",
       kudos: 8,
       avatarColor: AppColors.primary,
-      route: _routeA,
+      route: _routeForestal,
     ),
     WalkRecord(
       walkerName: 'Diego',
@@ -160,7 +161,7 @@ abstract final class WalksMockData {
       paceLabel: "12'15\"/km",
       kudos: 21,
       avatarColor: AppColors.walk,
-      route: _routeB,
+      route: _routeProvidencia,
       byWalker: true,
     ),
     WalkRecord(
@@ -173,18 +174,9 @@ abstract final class WalksMockData {
       paceLabel: "13'30\"/km",
       kudos: 5,
       avatarColor: AppColors.actionCalendar,
-      route: _routeA,
+      route: _routeForestal,
     ),
   ];
-
-  // --- Paseo en vivo (pantalla de seguimiento en tiempo real). ---
-  static const List<Offset> liveRoute = _routeC;
-  static const String liveWalker = 'Diego';
-  static const String liveWalkerRole = 'Paseador';
-
-  /// Objetivos para mapear el progreso de la animación a métricas realistas.
-  static const double liveTargetKm = 2.6;
-  static const int liveTargetSeconds = 1860; // 31:00
 
   /// Parciales por kilómetro del paseo destacado (estilo Strava).
   static const List<({String km, String time, double intensity})> splits = [

@@ -1,4 +1,8 @@
+import 'package:agenda_pet/core/data/repositories.dart';
 import 'package:agenda_pet/core/mocks/user_mock_data.dart';
+import 'package:agenda_pet/core/state/pets_store.dart';
+import 'package:agenda_pet/core/state/reminders_store.dart';
+import 'package:agenda_pet/core/config/app_config.dart';
 import 'package:agenda_pet/core/routing/app_navigation.dart';
 import 'package:agenda_pet/core/state/app_settings.dart';
 import 'package:agenda_pet/core/theme/app_colors.dart';
@@ -15,6 +19,76 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _notificationsOn = true;
+
+  bool _borrando = false;
+
+  /// Cierra la sesión y limpia lo que haya en memoria.
+  Future<void> _cerrarSesion() async {
+    await Repositories.auth.logout();
+    PetsStore.instance.reset();
+    RemindersStore.instance.reset();
+    if (!mounted) return;
+    context.goLogin();
+  }
+
+  /// Borrado de cuenta: exigido por App Store y Google Play.
+  Future<void> _confirmarBorrado() async {
+    final confirmado = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Eliminar mi cuenta'),
+        content: const Text(
+          'Se eliminarán tu cuenta y todos tus datos: mascotas, '
+          'recordatorios y registros de cuidado. Esta acción no se puede '
+          'deshacer.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text(
+              'Eliminar',
+              style: TextStyle(color: AppColors.memories),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmado != true) return;
+
+    setState(() => _borrando = true);
+    try {
+      await Repositories.account.deleteAccount();
+      PetsStore.instance.reset();
+      RemindersStore.instance.reset();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text('Tu cuenta fue eliminada'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      context.goOnboarding();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _borrando = false);
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(
+              'No se pudo eliminar la cuenta: ${mensajeDeError(e)}',
+            ),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +109,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               _AccountTile(onTap: () => context.goUserProfile()),
               const SizedBox(height: 16),
-              _PlanCard(isPro: settings.isPro, onTap: () => context.goSubscription()),
-              const SizedBox(height: 24),
+              if (AppConfig.mostrarEnDesarrollo) ...[
+                _PlanCard(
+                  isPro: settings.isPro,
+                  onTap: () => context.goSubscription(),
+                ),
+                const SizedBox(height: 24),
+              ],
               const _SectionLabel('Preferencias'),
               _SettingsGroup(
                 children: [
@@ -67,45 +146,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
-              const _SectionLabel('Cuenta'),
-              _SettingsGroup(
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.diversity_3_outlined),
-                    title: const Text('Familia compartida'),
-                    trailing: const Icon(Icons.chevron_right_rounded),
-                    onTap: () => context.goFamily(),
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: const Icon(Icons.notifications_active_outlined),
-                    title: const Text('Historial de notificaciones'),
-                    trailing: const Icon(Icons.chevron_right_rounded),
-                    onTap: () => context.goNotifications(),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              const _SectionLabel('Demo'),
-              _SettingsGroup(
-                children: [
-                  SwitchListTile(
-                    value: settings.isPro,
-                    onChanged: settings.setPro,
-                    activeThumbColor: AppColors.tips,
-                    secondary: const Icon(Icons.workspace_premium_outlined),
-                    title: const Text('Simular plan PRO'),
-                    subtitle: const Text('Activa/desactiva las funciones PRO'),
-                  ),
-                ],
-              ),
+              if (AppConfig.mostrarEnDesarrollo) ...[
+                const SizedBox(height: 24),
+                const _SectionLabel('Cuenta'),
+                _SettingsGroup(
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.diversity_3_outlined),
+                      title: const Text('Familia compartida'),
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: () => context.goFamily(),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.notifications_active_outlined),
+                      title: const Text('Historial de notificaciones'),
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                      onTap: () => context.goNotifications(),
+                    ),
+                  ],
+                ),
+              ],
+              if (AppConfig.mostrarEnDesarrollo) ...[
+                const SizedBox(height: 24),
+                const _SectionLabel('Demo'),
+                _SettingsGroup(
+                  children: [
+                    SwitchListTile(
+                      value: settings.isPro,
+                      onChanged: settings.setPro,
+                      activeThumbColor: AppColors.tips,
+                      secondary: const Icon(Icons.workspace_premium_outlined),
+                      title: const Text('Simular plan PRO'),
+                      subtitle: const Text(
+                        'Activa/desactiva las funciones PRO',
+                      ),
+                    ),
+                  ],
+                ),
+              ],
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: () => context.goLogin(),
-                  icon: const Icon(Icons.logout, color: AppColors.actionServices),
+                  onPressed: _cerrarSesion,
+                  icon: const Icon(
+                    Icons.logout,
+                    color: AppColors.actionServices,
+                  ),
                   label: const Text(
                     'Cerrar sesión',
                     style: TextStyle(color: AppColors.actionServices),
@@ -113,10 +201,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     side: BorderSide(
-                        color: AppColors.actionServices.withValues(alpha: 0.4)),
+                      color: AppColors.actionServices.withValues(alpha: 0.4),
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: TextButton.icon(
+                  onPressed: _borrando ? null : _confirmarBorrado,
+                  icon: const Icon(
+                    Icons.delete_forever_outlined,
+                    color: AppColors.memories,
+                  ),
+                  label: Text(
+                    _borrando ? 'Eliminando…' : 'Eliminar mi cuenta',
+                    style: const TextStyle(color: AppColors.memories),
                   ),
                 ),
               ),
@@ -125,8 +229,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Text(
                   'Agenda Pet · v1.0.0',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ),
             ],
@@ -167,7 +271,11 @@ class _AccountTile extends StatelessWidget {
               CircleAvatar(
                 radius: 28,
                 backgroundColor: AppColors.primary.withValues(alpha: 0.15),
-                child: const Icon(Icons.person, color: AppColors.primary, size: 30),
+                child: const Icon(
+                  Icons.person,
+                  color: AppColors.primary,
+                  size: 30,
+                ),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -177,14 +285,14 @@ class _AccountTile extends StatelessWidget {
                     Text(
                       UserMockData.name,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     Text(
                       UserMockData.email,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                   ],
                 ),
@@ -238,7 +346,8 @@ class _PlanCard extends StatelessWidget {
                     children: [
                       Text(
                         isPro ? 'Plan PRO activo' : 'Plan Free',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.w700,
                             ),
@@ -249,8 +358,8 @@ class _PlanCard extends StatelessWidget {
                             ? 'Gestiona tu suscripción'
                             : 'Hazte PRO y quita los anuncios',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.9),
-                            ),
+                          color: Colors.white.withValues(alpha: 0.9),
+                        ),
                       ),
                     ],
                   ),
@@ -277,9 +386,9 @@ class _SectionLabel extends StatelessWidget {
       child: Text(
         text,
         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: AppColors.textSecondary,
-            ),
+          fontWeight: FontWeight.w700,
+          color: AppColors.textSecondary,
+        ),
       ),
     );
   }

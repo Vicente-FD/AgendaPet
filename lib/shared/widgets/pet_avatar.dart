@@ -11,6 +11,7 @@ class PetAvatar extends StatelessWidget {
   const PetAvatar({
     super.key,
     this.imageBytes,
+    this.imageUrl,
     this.radius = 48,
     this.backgroundColor,
     this.iconColor,
@@ -18,6 +19,9 @@ class PetAvatar extends StatelessWidget {
   });
 
   final Uint8List? imageBytes;
+
+  /// Foto ya subida al servidor. Se usa si no hay bytes locales.
+  final String? imageUrl;
   final double radius;
   final Color? backgroundColor;
   final Color? iconColor;
@@ -31,7 +35,11 @@ class PetAvatar extends StatelessWidget {
     final avatar = CircleAvatar(
       radius: radius,
       backgroundColor: bg,
-      backgroundImage: imageBytes != null ? MemoryImage(imageBytes!) : null,
+      backgroundImage: imageBytes != null
+          ? MemoryImage(imageBytes!)
+          : (imageUrl != null && imageUrl!.startsWith('http')
+              ? NetworkImage(imageUrl!)
+              : null) as ImageProvider<Object>?,
       child: imageBytes == null
           ? Icon(Icons.pets, size: radius * 0.9, color: fg)
           : null,

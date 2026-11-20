@@ -1,7 +1,6 @@
-import 'package:agenda_pet/core/mocks/care_mock_data.dart';
 import 'package:agenda_pet/core/routing/app_navigation.dart';
-import 'package:agenda_pet/core/theme/app_colors.dart';
-import 'package:agenda_pet/shared/widgets/category_screen_layout.dart';
+import 'package:agenda_pet/features/care/data/care_dto.dart';
+import 'package:agenda_pet/features/care/presentation/care_category_screen.dart';
 import 'package:flutter/material.dart';
 
 class VaccinesScreen extends StatelessWidget {
@@ -9,12 +8,11 @@ class VaccinesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CategoryScreenLayout(
+    return CareCategoryScreen(
+      type: CareType.vaccine,
       title: 'Vacunas',
       subtitle: 'Calendario de vacunación y desparasitación',
-      icon: Icons.vaccines_outlined,
-      color: AppColors.actionVaccines,
-      items: CareMockData.vaccineItems,
+      emptyMessage: 'Todavía no registras vacunas.',
       addButtonLabel: 'Registrar vacuna',
       onAddPressed: () => context.goAddVaccine(),
     );

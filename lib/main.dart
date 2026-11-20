@@ -2,17 +2,23 @@
 // Autores: Vicente FD, Mauro Castro Lazcano
 // En web las rutas se ven limpias, por ejemplo /onboarding.
 import 'package:agenda_pet/core/routing/app_router.dart';
+import 'package:agenda_pet/core/notifications/local_notifications.dart';
 import 'package:agenda_pet/core/state/app_settings.dart';
+import 'package:agenda_pet/core/state/auth_session.dart';
 import 'package:agenda_pet/core/theme/app_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (kIsWeb) {
     usePathUrlStrategy();
   }
+  // Recupera la sesión guardada antes de pintar, para no mandar al login a
+  // alguien que ya había iniciado sesión.
+  await AuthSession.instance.restore();
+  await LocalNotifications.init();
   runApp(const AgendaPetApp());
 }
 

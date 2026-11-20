@@ -3,9 +3,12 @@
 // MouseTracker a re-hacer hit-test sobre lo que va quedando bajo el puntero.
 import 'package:agenda_pet/core/routing/app_router.dart';
 import 'package:agenda_pet/core/theme/app_theme.dart';
+import 'package:agenda_pet/features/walks/presentation/widgets/route_map.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'helpers/test_session.dart';
 
 Future<void> _wheelDown(WidgetTester tester, Size size, String route) async {
   await tester.binding.setSurfaceSize(size);
@@ -38,6 +41,8 @@ Future<void> _wheelDown(WidgetTester tester, Size size, String route) async {
 }
 
 void main() {
+  setUp(iniciarSesionDePrueba);
+  setUpAll(() => MapConfig.tilesEnabled = false);
   const sizes = [Size(1280, 800), Size(1280, 620), Size(900, 700)];
 
   for (final size in sizes) {

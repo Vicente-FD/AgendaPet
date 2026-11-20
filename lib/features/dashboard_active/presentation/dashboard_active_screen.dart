@@ -1,9 +1,12 @@
 import 'package:agenda_pet/core/mocks/home_mock_data.dart';
 import 'package:agenda_pet/core/mocks/notifications_mock_data.dart';
-import 'package:agenda_pet/core/mocks/pets_mock_data.dart';
 import 'package:agenda_pet/core/mocks/tips_mock_data.dart';
+import 'package:agenda_pet/core/config/app_config.dart';
 import 'package:agenda_pet/core/routing/app_navigation.dart';
 import 'package:agenda_pet/core/state/app_settings.dart';
+import 'package:agenda_pet/core/state/auth_session.dart';
+import 'package:agenda_pet/core/state/pets_store.dart';
+import 'package:agenda_pet/core/state/reminders_store.dart';
 import 'package:agenda_pet/core/theme/app_colors.dart';
 import 'package:agenda_pet/shared/widgets/ad_banner.dart';
 import 'package:agenda_pet/shared/widgets/animated_entrance.dart';
@@ -27,11 +30,26 @@ class DashboardActiveScreen extends StatefulWidget {
 }
 
 class _DashboardActiveScreenState extends State<DashboardActiveScreen> {
-  int _selectedPet = 0;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _cargar());
+  }
+
+  /// Carga mascotas y, con la seleccionada, sus recordatorios.
+  Future<void> _cargar({bool force = false}) async {
+    await PetsStore.instance.load(force: force);
+    await _cargarRecordatorios(force: force);
+  }
+
+  Future<void> _cargarRecordatorios({bool force = false}) async {
+    final mascota = PetsStore.instance.selected;
+    if (mascota == null) return;
+    await RemindersStore.instance.loadFor(mascota.id, force: force);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final pet = PetsMockData.pets[_selectedPet];
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
@@ -49,10 +67,11 @@ class _DashboardActiveScreenState extends State<DashboardActiveScreen> {
           ],
         ),
         actions: [
-          _NotificationBell(
-            unread: NotificationsMockData.unreadCount,
-            onTap: () => context.goNotifications(),
-          ),
+          if (AppConfig.mostrarEnDesarrollo)
+            _NotificationBell(
+              unread: NotificationsMockData.unreadCount,
+              onTap: () => context.goNotifications(),
+            ),
           IconButton(
             icon: const Icon(Icons.settings_outlined),
             onPressed: () => context.goSettings(),
@@ -60,141 +79,212 @@ class _DashboardActiveScreenState extends State<DashboardActiveScreen> {
           const SizedBox(width: 4),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-        children: [
-          const _GreetingHeader(name: HomeMockData.userName),
-          const SizedBox(height: 20),
-          SectionHeader(
-            title: 'Tus mascotas',
-            actionLabel: 'Ver todas',
-            onAction: () => context.goPets(),
-          ),
-          const SizedBox(height: 8),
-          PetSwitcher(
-            pets: PetsMockData.pets,
-            selectedIndex: _selectedPet,
-            onSelected: (i) => setState(() => _selectedPet = i),
-            onAdd: () => context.goAddPet(),
-          ),
-          const SizedBox(height: 12),
-          PetStatusCard(
-            pet: MockPet(
-              name: pet.name,
-              pendingTasks: pet.pendingTasks,
-              species: pet.species,
-            ),
-            onTap: () => context.goPetProfile(),
-          ),
-          const SizedBox(height: 24),
-          GridView.count(
-            crossAxisCount: 2,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
-            childAspectRatio: 1.3,
-            children: [
-              QuickActionTile(
-                label: 'Alimentación',
-                icon: Icons.restaurant_outlined,
-                color: AppColors.feeding,
-                onTap: () => context.goFeeding(),
-              ),
-              QuickActionTile(
-                label: 'Vacunas',
-                icon: Icons.vaccines_outlined,
-                color: AppColors.actionVaccines,
-                onTap: () => context.goVaccines(),
-              ),
-              QuickActionTile(
-                label: 'Medicinas',
-                icon: Icons.medication_outlined,
-                color: AppColors.actionMedicines,
-                onTap: () => context.goMedicines(),
-              ),
-              QuickActionTile(
-                label: 'Servicios',
-                icon: Icons.home_repair_service_outlined,
-                color: AppColors.actionServices,
-                onTap: () => context.goServices(),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          const AdBanner(),
-          const SizedBox(height: 16),
-          TipCard(
-            tip: TipsMockData.tipOfTheDay,
-            compact: true,
-            onTap: () => context.goTips(),
-          ),
-          const SizedBox(height: 24),
-          SectionHeader(
-            title: 'Próximos Recordatorios',
-            actionLabel: 'Ver agenda',
-            onAction: () => context.goAgenda(),
-          ),
-          const SizedBox(height: 12),
-          ...HomeMockData.upcomingReminders.indexed.map(
-            (entry) => AnimatedEntrance(
-              delay: AnimatedEntrance.stagger(entry.$1),
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: ReminderCard(reminder: entry.$2),
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
-          SectionHeader(
-            title: 'Paseos',
-            actionLabel: 'Ver todos',
-            onAction: () => context.goWalks(),
-          ),
-          const SizedBox(height: 12),
-          _WalkTeaserCard(
-            onTap: () => context.goWalks(),
-            onStart: () => context.goLiveWalk(),
-          ),
-          const SizedBox(height: 24),
-          SectionHeader(
-            title: 'Recuerdos de tu mascota',
-            actionLabel: 'Ver todo',
-            onAction: () => context.goGrowth(),
-          ),
-          const SizedBox(height: 12),
-          _GrowthTeaserCard(onTap: () => context.goGrowth()),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: QuickActionTile(
-                  label: 'Eventos',
-                  icon: Icons.celebration_outlined,
-                  color: AppColors.memories,
-                  onTap: () => context.goEvents(),
+      body: ListenableBuilder(
+        listenable: Listenable.merge([
+          PetsStore.instance,
+          RemindersStore.instance,
+        ]),
+        builder: (context, _) {
+          final store = PetsStore.instance;
+          final mascota = store.selected;
+          final pendientes = RemindersStore.instance.pendingCount;
+          return RefreshIndicator(
+            onRefresh: () => _cargar(force: true),
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+              children: [
+                _GreetingHeader(
+                  name:
+                      AuthSession.instance.user?.name ?? HomeMockData.userName,
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: QuickActionTile(
-                  label: 'Familia',
-                  icon: Icons.diversity_3_outlined,
-                  color: AppColors.family,
-                  onTap: () => context.goFamily(),
+                const SizedBox(height: 20),
+                SectionHeader(
+                  title: 'Tus mascotas',
+                  actionLabel: 'Ver todas',
+                  onAction: () => context.goPets(),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          PrimaryButton(
-            label: 'Agregar Mascota',
-            icon: Icons.add,
-            onPressed: () => context.goAddPet(),
-          ),
-        ],
+                const SizedBox(height: 8),
+                PetSwitcher(
+                  pets: [
+                    for (var i = 0; i < store.pets.length; i++)
+                      store.pets[i].toSummary(
+                        index: i,
+                        pendingTasks: i == store.selectedIndex ? pendientes : 0,
+                      ),
+                  ],
+                  selectedIndex: store.selectedIndex,
+                  onSelected: (i) {
+                    store.select(i);
+                    _cargarRecordatorios(force: true);
+                  },
+                  onAdd: () => context.goAddPet(),
+                ),
+                const SizedBox(height: 12),
+                if (mascota != null)
+                  PetStatusCard(
+                    pet: MockPet(
+                      name: mascota.name,
+                      pendingTasks: pendientes,
+                      species: mascota.species,
+                    ),
+                    onTap: () => context.goPetProfile(),
+                  ),
+                const SizedBox(height: 24),
+                GridView.count(
+                  crossAxisCount: 2,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 1.3,
+                  children: [
+                    QuickActionTile(
+                      label: 'Alimentación',
+                      icon: Icons.restaurant_outlined,
+                      color: AppColors.feeding,
+                      onTap: () => context.goFeeding(),
+                    ),
+                    QuickActionTile(
+                      label: 'Vacunas',
+                      icon: Icons.vaccines_outlined,
+                      color: AppColors.actionVaccines,
+                      onTap: () => context.goVaccines(),
+                    ),
+                    QuickActionTile(
+                      label: 'Medicinas',
+                      icon: Icons.medication_outlined,
+                      color: AppColors.actionMedicines,
+                      onTap: () => context.goMedicines(),
+                    ),
+                    QuickActionTile(
+                      label: 'Servicios',
+                      icon: Icons.home_repair_service_outlined,
+                      color: AppColors.actionServices,
+                      onTap: () => context.goServices(),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                if (AppConfig.mostrarEnDesarrollo) const AdBanner(),
+                const SizedBox(height: 16),
+                TipCard(
+                  tip: TipsMockData.tipOfTheDay,
+                  compact: true,
+                  onTap: () => context.goTips(),
+                ),
+                const SizedBox(height: 24),
+                SectionHeader(
+                  title: 'Próximos Recordatorios',
+                  actionLabel: 'Ver agenda',
+                  onAction: () => context.goAgenda(),
+                ),
+                const SizedBox(height: 12),
+                ..._recordatorios(),
+                const SizedBox(height: 24),
+                if (AppConfig.mostrarEnDesarrollo) ...[
+                  SectionHeader(
+                    title: 'Paseos',
+                    actionLabel: 'Ver todos',
+                    onAction: () => context.goWalks(),
+                  ),
+                  const SizedBox(height: 12),
+                  _WalkTeaserCard(
+                    onTap: () => context.goWalks(),
+                    onStart: () => context.goLiveWalk(),
+                  ),
+                ],
+                const SizedBox(height: 24),
+                if (AppConfig.mostrarEnDesarrollo) ...[
+                  SectionHeader(
+                    title: 'Recuerdos de tu mascota',
+                    actionLabel: 'Ver todo',
+                    onAction: () => context.goGrowth(),
+                  ),
+                  const SizedBox(height: 12),
+                  _GrowthTeaserCard(onTap: () => context.goGrowth()),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: QuickActionTile(
+                          label: 'Eventos',
+                          icon: Icons.celebration_outlined,
+                          color: AppColors.memories,
+                          onTap: () => context.goEvents(),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: QuickActionTile(
+                          label: 'Familia',
+                          icon: Icons.diversity_3_outlined,
+                          color: AppColors.family,
+                          onTap: () => context.goFamily(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+                const SizedBox(height: 20),
+                PrimaryButton(
+                  label: 'Agregar Mascota',
+                  icon: Icons.add,
+                  onPressed: () => context.goAddPet(),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
+  }
+
+  /// Tarjetas de los próximos recordatorios de la mascota seleccionada.
+  List<Widget> _recordatorios() {
+    final store = RemindersStore.instance;
+    if (store.loading && store.items.isEmpty) {
+      return const [
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: 24),
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      ];
+    }
+    final proximos = store.upcoming;
+    if (proximos.isEmpty) {
+      return [
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.check_circle_outline,
+                  color: AppColors.primary,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    store.error ?? 'Todo al día, sin recordatorios pendientes.',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ];
+    }
+    return [
+      for (final (i, recordatorio) in proximos.take(4).indexed)
+        AnimatedEntrance(
+          delay: AnimatedEntrance.stagger(i),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: ReminderCard(reminder: recordatorio.toCard()),
+          ),
+        ),
+    ];
   }
 }
 
@@ -253,8 +343,7 @@ class _GreetingHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final initial =
-        name.isNotEmpty ? name.characters.first.toUpperCase() : '?';
+    final initial = name.isNotEmpty ? name.characters.first.toUpperCase() : '?';
 
     return Material(
       borderRadius: BorderRadius.circular(20),
@@ -283,9 +372,7 @@ class _GreetingHeader extends StatelessWidget {
                       children: [
                         Text(
                           'Hola, $name 👋',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineSmall
+                          style: Theme.of(context).textTheme.headlineSmall
                               ?.copyWith(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w800,
@@ -294,7 +381,8 @@ class _GreetingHeader extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           '¿Qué necesitas hoy?',
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(
                                 color: Colors.white.withValues(alpha: 0.9),
                               ),
                         ),
@@ -323,16 +411,17 @@ class _GreetingHeader extends StatelessWidget {
                         children: [
                           Text(
                             'Mi cuenta',
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelSmall
+                            style: Theme.of(context).textTheme.labelSmall
                                 ?.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w700,
                                 ),
                           ),
-                          const Icon(Icons.chevron_right_rounded,
-                              color: Colors.white, size: 16),
+                          const Icon(
+                            Icons.chevron_right_rounded,
+                            color: Colors.white,
+                            size: 16,
+                          ),
                         ],
                       ),
                     ],
@@ -383,8 +472,11 @@ class _WalkTeaserCard extends StatelessWidget {
                       color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: const Icon(Icons.directions_walk_rounded,
-                        color: Colors.white, size: 26),
+                    child: const Icon(
+                      Icons.directions_walk_rounded,
+                      color: Colors.white,
+                      size: 26,
+                    ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -393,9 +485,7 @@ class _WalkTeaserCard extends StatelessWidget {
                       children: [
                         Text(
                           'Registra un paseo',
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleSmall
+                          style: Theme.of(context).textTheme.titleSmall
                               ?.copyWith(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w700,
@@ -404,9 +494,7 @@ class _WalkTeaserCard extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           'Guarda el recorrido y la ubicación en vivo',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
+                          style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(
                                 color: Colors.white.withValues(alpha: 0.9),
                               ),
@@ -421,7 +509,9 @@ class _WalkTeaserCard extends StatelessWidget {
                       backgroundColor: Colors.white,
                       foregroundColor: AppColors.walk,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 10),
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
                       minimumSize: Size.zero,
                     ),
                     child: const Text('Iniciar'),
@@ -470,8 +560,11 @@ class _GrowthTeaserCard extends StatelessWidget {
                       color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: const Icon(Icons.timeline_outlined,
-                        color: Colors.white, size: 26),
+                    child: const Icon(
+                      Icons.timeline_outlined,
+                      color: Colors.white,
+                      size: 26,
+                    ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -480,19 +573,19 @@ class _GrowthTeaserCard extends StatelessWidget {
                       children: [
                         Text(
                           'Historial de crecimiento',
-                          style:
-                              Theme.of(context).textTheme.titleSmall?.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                          style: Theme.of(context).textTheme.titleSmall
+                              ?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                              ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           'Mira cómo ha cambiado con el tiempo',
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Colors.white.withValues(alpha: 0.9),
-                                  ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Colors.white.withValues(alpha: 0.9),
+                              ),
                         ),
                       ],
                     ),

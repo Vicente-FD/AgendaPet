@@ -5,9 +5,12 @@ import 'package:agenda_pet/core/routing/app_router.dart';
 import 'package:agenda_pet/core/theme/app_theme.dart';
 import 'package:agenda_pet/features/walks/presentation/live_walk_screen.dart';
 import 'package:agenda_pet/features/walks/presentation/walks_screen.dart';
+import 'package:agenda_pet/features/walks/presentation/widgets/route_map.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'helpers/test_session.dart';
 
 const _sizes = [
   Size(1280, 800), // desktop ancho
@@ -23,6 +26,8 @@ Future<void> _sweep(WidgetTester tester, TestGesture mouse, Size size) async {
 }
 
 void main() {
+  setUp(iniciarSesionDePrueba);
+  setUpAll(() => MapConfig.tilesEnabled = false);
   for (final size in _sizes) {
     testWidgets('router → /paseos: hover + scroll @ $size', (tester) async {
       await tester.binding.setSurfaceSize(size);

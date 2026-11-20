@@ -1,5 +1,7 @@
 // Rutas de la app. La raíz (/) manda a /onboarding.
 import 'package:agenda_pet/core/mocks/walks_mock_data.dart';
+import 'package:agenda_pet/core/session/app_session.dart';
+import 'package:agenda_pet/core/state/auth_session.dart';
 import 'package:agenda_pet/features/account/presentation/user_profile_screen.dart';
 import 'package:agenda_pet/features/agenda/presentation/agenda_screen.dart';
 import 'package:agenda_pet/features/auth/presentation/login_screen.dart';
@@ -81,13 +83,31 @@ abstract final class AppRoutes {
   static const String addCertificate = '/agregar-certificado';
 }
 
+/// Pantallas que se pueden ver sin haber iniciado sesión.
+const _rutasPublicas = <String>{
+  AppRoutes.onboarding,
+  AppRoutes.login,
+  AppRoutes.register,
+};
+
 final GoRouter appRouter = GoRouter(
   debugLogDiagnostics: kDebugMode,
   initialLocation: AppRoutes.onboarding,
+  // Vuelve a evaluar el redirect cuando la sesión cambia (login o logout).
+  refreshListenable: AuthSession.instance,
   redirect: (context, state) {
-    if (state.uri.path == '/') {
-      return AppRoutes.onboarding;
-    }
+    final path = state.uri.path;
+    if (path == '/') return AppRoutes.onboarding;
+
+    final conSesion = AuthSession.instance.isAuthenticated;
+    final esPublica = _rutasPublicas.contains(path);
+
+    // Sin sesión, cualquier pantalla con datos manda al login.
+    if (!conSesion && !esPublica) return AppRoutes.login;
+
+    // Con sesión, no tiene sentido volver al login o al onboarding.
+    if (conSesion && esPublica) return AppSession.homeRoute;
+
     return null;
   },
   routes: [

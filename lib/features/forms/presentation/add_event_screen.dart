@@ -77,8 +77,9 @@ class _AddEventScreenState extends State<AddEventScreen> {
           label: 'Título',
           controller: _titleController,
           hint: 'Ej: Primer baño',
-          validator: (value) =>
-              value == null || value.trim().isEmpty ? 'Ingresa un título' : null,
+          validator: (value) => value == null || value.trim().isEmpty
+              ? 'Ingresa un título'
+              : null,
           textInputAction: TextInputAction.next,
         ),
         LabeledDropdownField<String>(

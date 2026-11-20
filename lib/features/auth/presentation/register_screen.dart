@@ -1,5 +1,10 @@
+import 'package:agenda_pet/core/config/app_config.dart';
+import 'package:agenda_pet/core/data/repositories.dart';
+import 'package:agenda_pet/features/auth/data/social_auth.dart';
 import 'package:agenda_pet/core/routing/app_navigation.dart';
 import 'package:agenda_pet/core/theme/app_colors.dart';
+import 'package:agenda_pet/features/auth/data/auth_models.dart';
+import 'package:agenda_pet/features/auth/data/auth_repository.dart';
 import 'package:agenda_pet/features/auth/presentation/widgets/social_login_buttons.dart';
 import 'package:agenda_pet/shared/widgets/app_logo.dart';
 import 'package:agenda_pet/shared/widgets/labeled_text_field.dart';
@@ -18,6 +23,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _loading = false;
 
   @override
   void dispose() {
@@ -27,9 +33,76 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
+  Future<void> _run(Future<AuthUser> Function() action) async {
+    if (_loading) return;
+    setState(() => _loading = true);
+    try {
+      await action();
+      if (mounted) context.goDashboardActive();
+    } catch (e) {
+      if (mounted) {
+        _showSnack(
+          context,
+          e is AuthException ? e.message : 'No se pudo crear la cuenta',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
   void _register() {
     if (!_formKey.currentState!.validate()) return;
-    context.goDashboardActive();
+    _run(
+      () => Repositories.auth.register(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+        name: _nameController.text.trim(),
+      ),
+    );
+  }
+
+  Future<void> _conGoogle() async {
+    if (!AppConfig.useBackend) {
+      _run(() => Repositories.auth.loginWithGoogle('mock-id-token'));
+      return;
+    }
+    try {
+      final idToken = await SocialAuth.googleIdToken();
+      _run(() => Repositories.auth.loginWithGoogle(idToken));
+    } on SocialAuthException catch (e) {
+      if (mounted) _showSnack(context, e.message);
+    }
+  }
+
+  Future<void> _conApple() async {
+    if (!AppConfig.useBackend) {
+      _run(() => Repositories.auth.loginWithApple('mock-identity-token'));
+      return;
+    }
+    try {
+      final credencial = await SocialAuth.appleCredentials();
+      _run(
+        () => Repositories.auth.loginWithApple(
+          credencial.identityToken,
+          name: credencial.name,
+        ),
+      );
+    } on SocialAuthException catch (e) {
+      if (mounted) _showSnack(context, e.message);
+    }
+  }
+
+  void _showSnack(BuildContext context, String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: AppColors.primary,
+        ),
+      );
   }
 
   @override
@@ -50,16 +123,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
             const SizedBox(height: 28),
             Text(
               'Crea tu cuenta',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 4),
             Text(
               'Empieza a cuidar a tus mascotas',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppColors.textSecondary,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 28),
             LabeledTextField(
@@ -67,8 +140,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               controller: _nameController,
               hint: 'Tu nombre',
               textInputAction: TextInputAction.next,
-              validator: (value) =>
-                  value == null || value.trim().isEmpty ? 'Ingresa tu nombre' : null,
+              validator: (value) => value == null || value.trim().isEmpty
+                  ? 'Ingresa tu nombre'
+                  : null,
             ),
             const SizedBox(height: 16),
             LabeledTextField(
@@ -77,8 +151,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               hint: 'tucorreo@ejemplo.cl',
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
-              validator: (value) =>
-                  value == null || !value.contains('@') ? 'Correo inválido' : null,
+              validator: (value) => value == null || !value.contains('@')
+                  ? 'Correo inválido'
+                  : null,
             ),
             const SizedBox(height: 16),
             LabeledTextField(
@@ -91,9 +166,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   : null,
             ),
             const SizedBox(height: 24),
-            PrimaryButton(label: 'Crear cuenta', onPressed: _register),
+            PrimaryButton(
+              label: _loading ? 'Creando…' : 'Crear cuenta',
+              onPressed: _loading ? null : _register,
+            ),
             const SizedBox(height: 20),
-            SocialLoginButtons(onPressed: () => context.goDashboardActive()),
+            SocialLoginButtons(
+              onGoogle: _loading ? () {} : _conGoogle,
+              onApple: _loading ? () {} : _conApple,
+              mostrarApple: !AppConfig.useBackend || SocialAuth.appleDisponible,
+            ),
             const SizedBox(height: 24),
             Wrap(
               alignment: WrapAlignment.center,
@@ -102,8 +184,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 Text(
                   '¿Ya tienes cuenta?',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                    color: AppColors.textSecondary,
+                  ),
                 ),
                 TextButton(
                   onPressed: () => context.goLogin(),

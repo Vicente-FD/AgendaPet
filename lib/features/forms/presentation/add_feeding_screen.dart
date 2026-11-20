@@ -1,4 +1,7 @@
+import 'package:agenda_pet/core/state/feeding_store.dart';
+import 'package:agenda_pet/core/state/pets_store.dart';
 import 'package:agenda_pet/core/theme/app_colors.dart';
+import 'package:agenda_pet/features/feeding/data/feeding_dto.dart';
 import 'package:agenda_pet/core/utils/date_format.dart';
 import 'package:agenda_pet/shared/widgets/add_form_scaffold.dart';
 import 'package:agenda_pet/shared/widgets/labeled_dropdown_field.dart';
@@ -24,6 +27,8 @@ class _AddFeedingScreenState extends State<AddFeedingScreen> {
   final _openedController = TextEditingController();
 
   String _kind = 'Seco';
+  DateTime? _openedAt;
+  bool _saving = false;
 
   @override
   void dispose() {
@@ -44,6 +49,7 @@ class _AddFeedingScreenState extends State<AddFeedingScreen> {
       lastDate: now,
     );
     if (picked != null) {
+      _openedAt = picked;
       _openedController.text = formatShortDate(picked);
     }
   }
@@ -109,10 +115,46 @@ class _AddFeedingScreenState extends State<AddFeedingScreen> {
     );
   }
 
-  void _submit() {
-    if (!_formKey.currentState!.validate()) return;
+  Future<void> _submit() async {
+    if (_saving || !_formKey.currentState!.validate()) return;
 
-    showFormSavedSnackBar(context, 'Alimento registrado');
-    context.pop();
+    final mascota = PetsStore.instance.selected;
+    if (mascota == null) {
+      _aviso('Primero agrega una mascota para registrar su alimento.');
+      return;
+    }
+
+    setState(() => _saving = true);
+    try {
+      await FeedingStore.instance.add(
+        mascota.id,
+        FeedingDto(
+          id: '',
+          foodName: _foodController.text.trim(),
+          brand: _brandController.text.trim(),
+          kind: FeedingDto.tipoApi(_kind),
+          bagSizeKg: double.tryParse(
+            _bagController.text.trim().replaceAll(',', '.'),
+          ),
+          dailyGrams: int.tryParse(_rationController.text.trim()),
+          openedAt: _openedAt,
+        ),
+      );
+      if (!mounted) return;
+      showFormSavedSnackBar(context, 'Alimento registrado');
+      context.pop();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _saving = false);
+      _aviso('No se pudo guardar: ${mensajeDeError(e)}');
+    }
+  }
+
+  void _aviso(String mensaje) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(mensaje), behavior: SnackBarBehavior.floating),
+      );
   }
 }

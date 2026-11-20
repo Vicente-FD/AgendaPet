@@ -5,6 +5,7 @@ import 'package:agenda_pet/core/theme/app_theme.dart';
 import 'package:agenda_pet/features/walks/presentation/live_walk_screen.dart';
 import 'package:agenda_pet/features/walks/presentation/walk_detail_screen.dart';
 import 'package:agenda_pet/features/walks/presentation/walks_screen.dart';
+import 'package:agenda_pet/features/walks/presentation/widgets/route_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,6 +13,8 @@ import 'package:flutter_test/flutter_test.dart';
 Widget _wrap(Widget child) => MaterialApp(theme: AppTheme.light, home: child);
 
 void main() {
+  setUpAll(() => MapConfig.tilesEnabled = false);
+
   testWidgets('LiveWalk: viewport bajo, hover+scroll sin excepción',
       (tester) async {
     await tester.binding.setSurfaceSize(const Size(390, 360));

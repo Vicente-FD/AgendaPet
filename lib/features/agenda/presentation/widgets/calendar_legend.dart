@@ -15,19 +15,16 @@ class CalendarLegend extends StatelessWidget {
           children: [
             Text(
               'Leyenda',
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 10),
             Wrap(
               spacing: 12,
               runSpacing: 8,
               children: CareEventType.values.map((type) {
-                return _LegendItem(
-                  color: type.color,
-                  label: type.label,
-                );
+                return _LegendItem(color: type.color, label: type.label);
               }).toList(),
             ),
             const SizedBox(height: 8),
@@ -41,8 +38,8 @@ class CalendarLegend extends StatelessWidget {
                 Text(
                   'Pendiente',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                    color: AppColors.textSecondary,
+                  ),
                 ),
                 const SizedBox(width: 16),
                 const _LegendDot(
@@ -53,8 +50,8 @@ class CalendarLegend extends StatelessWidget {
                 Text(
                   'Realizado',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.textSecondary,
-                      ),
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ],
             ),
@@ -78,10 +75,7 @@ class _LegendItem extends StatelessWidget {
       children: [
         _LegendDot(color: color, completed: false),
         const SizedBox(width: 6),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        Text(label, style: Theme.of(context).textTheme.bodySmall),
       ],
     );
   }

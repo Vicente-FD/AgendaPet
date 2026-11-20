@@ -1,11 +1,21 @@
 import 'package:agenda_pet/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
-/// Botones de acceso social (simulados). Llaman a [onPressed] al tocar.
+/// Botones de acceso con Google y Apple.
 class SocialLoginButtons extends StatelessWidget {
-  const SocialLoginButtons({super.key, required this.onPressed});
+  const SocialLoginButtons({
+    super.key,
+    required this.onGoogle,
+    required this.onApple,
+    this.mostrarApple = true,
+  });
 
-  final VoidCallback onPressed;
+  final VoidCallback onGoogle;
+  final VoidCallback onApple;
+
+  /// Apple exige su botón si se ofrece Google, pero el flujo solo existe
+  /// en iPhone y Mac.
+  final bool mostrarApple;
 
   @override
   Widget build(BuildContext context) {
@@ -14,14 +24,16 @@ class SocialLoginButtons extends StatelessWidget {
         _SocialButton(
           icon: Icons.g_mobiledata_rounded,
           label: 'Continuar con Google',
-          onPressed: onPressed,
+          onPressed: onGoogle,
         ),
-        const SizedBox(height: 12),
-        _SocialButton(
-          icon: Icons.apple,
-          label: 'Continuar con Apple',
-          onPressed: onPressed,
-        ),
+        if (mostrarApple) ...[
+          const SizedBox(height: 12),
+          _SocialButton(
+            icon: Icons.apple,
+            label: 'Continuar con Apple',
+            onPressed: onApple,
+          ),
+        ],
       ],
     );
   }
@@ -48,7 +60,9 @@ class _SocialButton extends StatelessWidget {
         label: Text(label),
         style: OutlinedButton.styleFrom(
           foregroundColor: Theme.of(context).colorScheme.onSurface,
-          side: BorderSide(color: AppColors.textSecondary.withValues(alpha: 0.3)),
+          side: BorderSide(
+            color: AppColors.textSecondary.withValues(alpha: 0.3),
+          ),
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),

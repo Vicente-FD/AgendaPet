@@ -1,9 +1,10 @@
 import 'package:agenda_pet/core/theme/app_colors.dart';
+import 'package:agenda_pet/features/care/data/care_dto.dart';
+import 'package:agenda_pet/features/care/data/care_form.dart';
 import 'package:agenda_pet/shared/widgets/add_form_scaffold.dart';
 import 'package:agenda_pet/shared/widgets/labeled_dropdown_field.dart';
 import 'package:agenda_pet/shared/widgets/labeled_text_field.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class AddMedicineScreen extends StatefulWidget {
   const AddMedicineScreen({super.key});
@@ -19,8 +20,14 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
   final _notesController = TextEditingController();
 
   String _frequency = 'Diario';
+  bool _saving = false;
 
-  static const _frequencies = ['Diario', 'Semanal', 'Mensual', 'Según necesidad'];
+  static const _frequencies = [
+    'Diario',
+    'Semanal',
+    'Mensual',
+    'Según necesidad',
+  ];
 
   @override
   void dispose() {
@@ -45,20 +52,16 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
           label: 'Nombre',
           controller: _nameController,
           hint: 'Ej: Omega 3',
-          validator: (value) =>
-              value == null || value.trim().isEmpty ? 'Ingresa el nombre' : null,
+          validator: (value) => value == null || value.trim().isEmpty
+              ? 'Ingresa el nombre'
+              : null,
           textInputAction: TextInputAction.next,
         ),
         LabeledDropdownField<String>(
           label: 'Frecuencia',
           value: _frequency,
           items: _frequencies
-              .map(
-                (freq) => DropdownMenuItem(
-                  value: freq,
-                  child: Text(freq),
-                ),
-              )
+              .map((freq) => DropdownMenuItem(value: freq, child: Text(freq)))
               .toList(),
           onChanged: (value) {
             if (value != null) _frequency = value;
@@ -83,13 +86,23 @@ class _AddMedicineScreenState extends State<AddMedicineScreen> {
     );
   }
 
-  void _submit() {
-    if (!_formKey.currentState!.validate()) return;
+  Future<void> _submit() async {
+    if (_saving || !_formKey.currentState!.validate()) return;
+    final nombre = _nameController.text.trim();
 
-    showFormSavedSnackBar(
+    setState(() => _saving = true);
+    final guardado = await guardarCuidado(
       context,
-      'Medicina "${_nameController.text.trim()}" guardada',
+      type: CareType.medicine,
+      name: nombre,
+      date: DateTime.now(),
+      notes: notasCompuestas({
+        'Dosis': _doseController.text,
+        'Frecuencia': _frequency,
+        'Notas': _notesController.text,
+      }),
+      mensajeOk: 'Medicina "$nombre" guardada',
     );
-    context.pop();
+    if (!guardado && mounted) setState(() => _saving = false);
   }
 }

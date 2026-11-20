@@ -1,10 +1,11 @@
 import 'package:agenda_pet/core/theme/app_colors.dart';
+import 'package:agenda_pet/features/care/data/care_dto.dart';
+import 'package:agenda_pet/features/care/data/care_form.dart';
 import 'package:agenda_pet/shared/widgets/add_form_scaffold.dart';
 import 'package:agenda_pet/shared/widgets/labeled_dropdown_field.dart';
 import 'package:agenda_pet/shared/widgets/labeled_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:agenda_pet/core/utils/date_format.dart';
-import 'package:go_router/go_router.dart';
 
 class AddServiceScreen extends StatefulWidget {
   const AddServiceScreen({super.key});
@@ -21,6 +22,8 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   final _dateController = TextEditingController();
 
   String _serviceType = 'Peluquería';
+  DateTime? _date;
+  bool _saving = false;
 
   static const _serviceTypes = [
     'Peluquería',
@@ -54,20 +57,16 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
           label: 'Nombre del servicio',
           controller: _nameController,
           hint: 'Ej: Peluquería completa',
-          validator: (value) =>
-              value == null || value.trim().isEmpty ? 'Ingresa el nombre' : null,
+          validator: (value) => value == null || value.trim().isEmpty
+              ? 'Ingresa el nombre'
+              : null,
           textInputAction: TextInputAction.next,
         ),
         LabeledDropdownField<String>(
           label: 'Tipo de servicio',
           value: _serviceType,
           items: _serviceTypes
-              .map(
-                (type) => DropdownMenuItem(
-                  value: type,
-                  child: Text(type),
-                ),
-              )
+              .map((type) => DropdownMenuItem(value: type, child: Text(type)))
               .toList(),
           onChanged: (value) {
             if (value != null) _serviceType = value;
@@ -77,8 +76,9 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
           label: 'Proveedor',
           controller: _providerController,
           hint: 'Ej: Happy Paws',
-          validator: (value) =>
-              value == null || value.trim().isEmpty ? 'Ingresa el proveedor' : null,
+          validator: (value) => value == null || value.trim().isEmpty
+              ? 'Ingresa el proveedor'
+              : null,
           textInputAction: TextInputAction.next,
         ),
         LabeledTextField(
@@ -112,17 +112,28 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
     if (picked == null || !mounted) return;
 
     setState(() {
+      _date = picked;
       _dateController.text = formatShortDate(picked);
     });
   }
 
-  void _submit() {
-    if (!_formKey.currentState!.validate()) return;
+  Future<void> _submit() async {
+    if (_saving || !_formKey.currentState!.validate()) return;
+    final nombre = _nameController.text.trim();
 
-    showFormSavedSnackBar(
+    setState(() => _saving = true);
+    final guardado = await guardarCuidado(
       context,
-      'Servicio "${_nameController.text.trim()}" guardado',
+      type: CareType.service,
+      name: nombre,
+      date: _date ?? DateTime.now(),
+      notes: notasCompuestas({
+        'Tipo': _serviceType,
+        'Proveedor': _providerController.text,
+        'Detalles': _detailsController.text,
+      }),
+      mensajeOk: 'Servicio "$nombre" guardado',
     );
-    context.pop();
+    if (!guardado && mounted) setState(() => _saving = false);
   }
 }

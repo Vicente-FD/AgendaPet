@@ -61,7 +61,8 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
   Future<void> _attachMockPdf() async {
     // Fase 1 UI: simula adjuntar un PDF sin backend ni file_picker.
     setState(() {
-      _attachedFileName = 'documento_${DateTime.now().millisecondsSinceEpoch}.pdf';
+      _attachedFileName =
+          'documento_${DateTime.now().millisecondsSinceEpoch}.pdf';
       _scan = null;
     });
     if (!mounted) return;
@@ -111,12 +112,7 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
           label: 'Tipo de documento',
           value: _type,
           items: _types
-              .map(
-                (type) => DropdownMenuItem(
-                  value: type,
-                  child: Text(type),
-                ),
-              )
+              .map((type) => DropdownMenuItem(value: type, child: Text(type)))
               .toList(),
           onChanged: (value) {
             if (value != null) _type = value;
@@ -126,8 +122,9 @@ class _AddCertificateScreenState extends State<AddCertificateScreen> {
           label: 'Nombre',
           controller: _titleController,
           hint: 'Ej: Certificado vacuna antirrábica',
-          validator: (value) =>
-              value == null || value.trim().isEmpty ? 'Ingresa un nombre' : null,
+          validator: (value) => value == null || value.trim().isEmpty
+              ? 'Ingresa un nombre'
+              : null,
           textInputAction: TextInputAction.next,
         ),
         LabeledTextField(

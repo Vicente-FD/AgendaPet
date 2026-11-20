@@ -1,13 +1,14 @@
 import 'dart:typed_data';
 
 import 'package:agenda_pet/core/theme/app_colors.dart';
+import 'package:agenda_pet/features/care/data/care_dto.dart';
+import 'package:agenda_pet/features/care/data/care_form.dart';
 import 'package:agenda_pet/core/utils/date_format.dart';
 import 'package:agenda_pet/shared/widgets/add_form_scaffold.dart';
 import 'package:agenda_pet/shared/widgets/labeled_dropdown_field.dart';
 import 'package:agenda_pet/shared/widgets/labeled_text_field.dart';
 import 'package:agenda_pet/shared/widgets/photo_picker_field.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class AddVaccineScreen extends StatefulWidget {
   const AddVaccineScreen({super.key});
@@ -24,6 +25,8 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
   final _dateController = TextEditingController();
 
   String _status = 'Realizada';
+  DateTime? _date;
+  bool _saving = false;
   Uint8List? _certificateScan;
   String? _certificatePdf;
 
@@ -50,6 +53,7 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
     if (picked == null || !mounted) return;
 
     setState(() {
+      _date = picked;
       _dateController.text = formatShortDate(picked);
     });
   }
@@ -71,8 +75,8 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
       );
   }
 
-  void _submit() {
-    if (!_formKey.currentState!.validate()) return;
+  Future<void> _submit() async {
+    if (_saving || !_formKey.currentState!.validate()) return;
 
     if (_wasAdministered &&
         _certificateScan == null &&
@@ -90,16 +94,27 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
       return;
     }
 
-    final suffix = _wasAdministered &&
-            (_certificateScan != null || _certificatePdf != null)
-        ? ' con certificado'
-        : '';
+    final conCertificado =
+        _wasAdministered &&
+        (_certificateScan != null || _certificatePdf != null);
+    final nombre = _nameController.text.trim();
 
-    showFormSavedSnackBar(
+    setState(() => _saving = true);
+    final guardado = await guardarCuidado(
       context,
-      'Vacuna "${_nameController.text.trim()}" registrada$suffix',
+      type: CareType.vaccine,
+      name: nombre,
+      date: _date ?? DateTime.now(),
+      notes: notasCompuestas({
+        'Estado': _status,
+        'Clínica': _clinicController.text,
+        'Certificado': conCertificado ? 'adjunto' : null,
+        'Notas': _notesController.text,
+      }),
+      mensajeOk:
+          'Vacuna "$nombre" registrada${conCertificado ? ' con certificado' : ''}',
     );
-    context.pop();
+    if (!guardado && mounted) setState(() => _saving = false);
   }
 
   @override
@@ -117,8 +132,9 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
           label: 'Nombre',
           controller: _nameController,
           hint: 'Ej: Vacuna Rabia',
-          validator: (value) =>
-              value == null || value.trim().isEmpty ? 'Ingresa el nombre' : null,
+          validator: (value) => value == null || value.trim().isEmpty
+              ? 'Ingresa el nombre'
+              : null,
           textInputAction: TextInputAction.next,
         ),
         LabeledDropdownField<String>(
@@ -126,10 +142,8 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
           value: _status,
           items: _statuses
               .map(
-                (status) => DropdownMenuItem(
-                  value: status,
-                  child: Text(status),
-                ),
+                (status) =>
+                    DropdownMenuItem(value: status, child: Text(status)),
               )
               .toList(),
           onChanged: (value) {

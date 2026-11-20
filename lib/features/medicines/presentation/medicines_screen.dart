@@ -1,7 +1,6 @@
-import 'package:agenda_pet/core/mocks/care_mock_data.dart';
 import 'package:agenda_pet/core/routing/app_navigation.dart';
-import 'package:agenda_pet/core/theme/app_colors.dart';
-import 'package:agenda_pet/shared/widgets/category_screen_layout.dart';
+import 'package:agenda_pet/features/care/data/care_dto.dart';
+import 'package:agenda_pet/features/care/presentation/care_category_screen.dart';
 import 'package:flutter/material.dart';
 
 class MedicinesScreen extends StatelessWidget {
@@ -9,13 +8,12 @@ class MedicinesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CategoryScreenLayout(
+    return CareCategoryScreen(
+      type: CareType.medicine,
       title: 'Medicinas',
-      subtitle: 'Tratamientos y medicación activa',
-      icon: Icons.medication_outlined,
-      color: AppColors.actionMedicines,
-      items: CareMockData.medicineItems,
-      addButtonLabel: 'Agregar medicina',
+      subtitle: 'Tratamientos y antiparasitarios',
+      emptyMessage: 'Todavía no registras medicinas.',
+      addButtonLabel: 'Registrar medicina',
       onAddPressed: () => context.goAddMedicine(),
     );
   }

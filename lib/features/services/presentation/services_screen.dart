@@ -1,7 +1,6 @@
-import 'package:agenda_pet/core/mocks/care_mock_data.dart';
 import 'package:agenda_pet/core/routing/app_navigation.dart';
-import 'package:agenda_pet/core/theme/app_colors.dart';
-import 'package:agenda_pet/shared/widgets/category_screen_layout.dart';
+import 'package:agenda_pet/features/care/data/care_dto.dart';
+import 'package:agenda_pet/features/care/presentation/care_category_screen.dart';
 import 'package:flutter/material.dart';
 
 class ServicesScreen extends StatelessWidget {
@@ -9,13 +8,12 @@ class ServicesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CategoryScreenLayout(
+    return CareCategoryScreen(
+      type: CareType.service,
       title: 'Servicios',
-      subtitle: 'Peluquería, clínica y hospedaje',
-      icon: Icons.home_repair_service_outlined,
-      color: AppColors.actionServices,
-      items: CareMockData.serviceItems,
-      addButtonLabel: 'Agregar servicio',
+      subtitle: 'Baños, peluquería y visitas al veterinario',
+      emptyMessage: 'Todavía no registras servicios.',
+      addButtonLabel: 'Registrar servicio',
       onAddPressed: () => context.goAddService(),
     );
   }

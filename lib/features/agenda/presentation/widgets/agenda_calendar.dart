@@ -11,6 +11,7 @@ class AgendaCalendar extends StatelessWidget {
     required this.selectedDay,
     required this.onMonthChanged,
     required this.onDaySelected,
+    required this.events,
   });
 
   final DateTime focusedMonth;
@@ -18,11 +19,20 @@ class AgendaCalendar extends StatelessWidget {
   final ValueChanged<DateTime> onMonthChanged;
   final ValueChanged<DateTime> onDaySelected;
 
+  /// Eventos reales del mes (cuidados y recordatorios de la mascota).
+  final List<MockCalendarEvent> events;
+
   static const List<String> _weekdays = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
 
   @override
   Widget build(BuildContext context) {
-    final monthEvents = AgendaCalendarMockData.eventsForMonth(focusedMonth);
+    final monthEvents = events
+        .where(
+          (e) =>
+              e.date.year == focusedMonth.year &&
+              e.date.month == focusedMonth.month,
+        )
+        .toList();
     final days = _buildMonthDays(focusedMonth);
     final monthLabel = _monthYearLabel(focusedMonth);
 
@@ -44,8 +54,8 @@ class AgendaCalendar extends StatelessWidget {
                     monthLabel,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                        ),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
                 IconButton(
@@ -64,7 +74,8 @@ class AgendaCalendar extends StatelessWidget {
                       child: Text(
                         day,
                         textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        style: Theme.of(context).textTheme.labelMedium
+                            ?.copyWith(
                               color: AppColors.textSecondary,
                               fontWeight: FontWeight.w600,
                             ),
@@ -176,8 +187,8 @@ class _DayCell extends StatelessWidget {
     final backgroundColor = isSelected
         ? AppColors.primary.withValues(alpha: 0.15)
         : hasEvents
-            ? context.surfaceMuted
-            : Colors.transparent;
+        ? context.surfaceMuted
+        : Colors.transparent;
 
     return Material(
       color: backgroundColor,
@@ -200,9 +211,9 @@ class _DayCell extends StatelessWidget {
               Text(
                 '$day',
                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                      color: isSelected ? AppColors.primary : null,
-                    ),
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected ? AppColors.primary : null,
+                ),
               ),
               if (hasEvents) ...[
                 const SizedBox(height: 2),

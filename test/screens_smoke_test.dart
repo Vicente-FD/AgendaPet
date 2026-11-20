@@ -24,6 +24,7 @@ import 'package:agenda_pet/features/tips/presentation/tips_screen.dart';
 import 'package:agenda_pet/features/walks/presentation/live_walk_screen.dart';
 import 'package:agenda_pet/features/walks/presentation/walk_detail_screen.dart';
 import 'package:agenda_pet/features/walks/presentation/walks_screen.dart';
+import 'package:agenda_pet/features/walks/presentation/widgets/route_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -63,6 +64,9 @@ Future<void> _useMobileSurface(WidgetTester tester) async {
 }
 
 void main() {
+  // Los mapas (flutter_map) no deben pedir tiles por red durante los tests.
+  setUpAll(() => MapConfig.tilesEnabled = false);
+
   // Cada pantalla en modo claro a ancho de móvil.
   for (final entry in _screens.entries) {
     testWidgets('${entry.key} se construye (móvil, claro)', (tester) async {
@@ -101,16 +105,16 @@ void main() {
     expect(find.text('¡Comenzar!'), findsOneWidget);
   });
 
-  // El paseo en vivo anima de forma continua (pulso "EN VIVO"), por eso NO se
+  // El paseo en vivo tiene un pulso "EN VIVO" que anima en bucle, por eso NO se
   // usa pumpAndSettle: nunca quedaría en reposo. Se avanza con pump() y al final
-  // se desmonta para que los controladores se liberen.
-  testWidgets('Paseo en vivo se construye y anima (móvil)', (tester) async {
+  // se desmonta para que los controladores se liberen. Sin GPS en el entorno de
+  // test, la insignia muestra "SIN GPS" pero el control "Finalizar" está.
+  testWidgets('Paseo en vivo se construye (móvil)', (tester) async {
     await _useMobileSurface(tester);
     await tester.pumpWidget(_wrap(const LiveWalkScreen()));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
     expect(find.byType(Scaffold), findsWidgets);
-    expect(find.text('EN VIVO'), findsOneWidget);
     expect(find.text('Finalizar'), findsOneWidget);
     // Desmonta para disparar dispose() de los AnimationController.
     await tester.pumpWidget(const SizedBox());

@@ -69,7 +69,7 @@ class WalkDetailScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          RouteMap(points: walk.route, height: 240),
+          RouteMap(points: walk.route, height: 240, interactive: true),
           const SizedBox(height: 16),
           Card(
             child: Padding(
