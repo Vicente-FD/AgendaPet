@@ -57,7 +57,7 @@ fly secrets set \
   DIRECT_URL="<la misma cadena>" \
   JWT_ACCESS_SECRET="$(openssl rand -hex 32)" \
   JWT_REFRESH_SECRET="$(openssl rand -hex 32)" \
-  CORS_ORIGINS="https://agendapet.cl" \
+  CORS_ORIGINS="https://miagendapet.cl" \
   SUPABASE_URL="https://<ref>.supabase.co" \
   SUPABASE_SERVICE_ROLE_KEY="<service role key>" \
   SUPABASE_BUCKET="pets"
@@ -86,8 +86,8 @@ gcloud run deploy agendapet-api \
 
 ## 4. Dominio
 
-1. En NIC Chile, apuntar `api.agendapet.cl` al proveedor elegido
-   (`fly certs add api.agendapet.cl` entrega los registros DNS).
+1. En NIC Chile, apuntar `api.miagendapet.cl` al proveedor elegido
+   (`fly certs add api.miagendapet.cl` entrega los registros DNS).
 2. El certificado HTTPS lo emiten Fly o Cloud Run automáticamente.
 3. Dejar `CORS_ORIGINS` con el dominio del sitio web, no con `*`.
 
@@ -96,14 +96,14 @@ gcloud run deploy agendapet-api \
 ```bash
 flutter build appbundle --release \
   --dart-define=USE_BACKEND=true \
-  --dart-define=API_BASE_URL=https://api.agendapet.cl/api
+  --dart-define=API_BASE_URL=https://api.miagendapet.cl/api
 ```
 
 Para iOS, `flutter build ipa` con los mismos `--dart-define`.
 
 ## 6. Checklist antes de abrir al público
 
-- [ ] `curl https://api.agendapet.cl/api/health` responde `{"status":"ok"}`.
+- [ ] `curl https://api.miagendapet.cl/api/health` responde `{"status":"ok"}`.
 - [ ] `npx prisma migrate status` dice "up to date".
 - [ ] Crear una cuenta desde la app y verificar que la mascota queda guardada.
 - [ ] Respaldos diarios activos en Supabase (incluidos en el plan Pro).
